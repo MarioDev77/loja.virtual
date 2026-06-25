@@ -28,6 +28,9 @@ if ((process.env.JWT_SECRET || '').length < 32) {
 
 const app = express();
 
+// ─── Health (antes de tudo)
+app.get("/health", (req, res) => res.status(200).end());
+
 // ─── Fingerprinting ───────────────────────────────────────────────────────────
 app.disable('x-powered-by');
 app.set('etag', false);
@@ -76,8 +79,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// ─── Health (antes do CORS — sem dados sensíveis) ────────────────────────────
-app.get('/health', (req, res) => res.status(200).end());
 
 // ─── CORS ─────────────────────────────────────────────────────────────────────
 const allowedOrigins = process.env.CORS_ORIGIN
