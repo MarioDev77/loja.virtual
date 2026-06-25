@@ -20,7 +20,7 @@
 // ---------------------------------------------------------------------------
 // Configuração — ajuste API_BASE se a API estiver em outro host/porta.
 // ---------------------------------------------------------------------------
-const API_BASE = 'http://127.0.0.1:3000/api';
+const API_BASE = 'https://lojavirtual-production-2708.up.railway.app/api';
 
 // ---------------------------------------------------------------------------
 // Estado em memória
