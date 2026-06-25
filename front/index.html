@@ -1,0 +1,349 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pitch Futebol — Chuteiras & Moda</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: '#FDFCF8',
+                        savor: '#F3EFE0',
+                        brand: { 50:'#faf5ff', 100:'#f3e8ff', 200:'#e9d5ff', 500:'#a855f7', 600:'#9333ea', 700:'#7e22ce', 800:'#6b21a8', 900:'#3b0764' },
+                        pitch: { 50:'#f0fdf4', 100:'#dcfce7', 500:'#22c55e', 600:'#16a34a', 700:'#15803d' }
+                    },
+                    borderRadius: { '4xl': '2rem' },
+                    fontFamily: { sans: ['Inter'], serif: ['Playfair Display'] }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="./assets/styles.css">
+    <meta name="robots" content="noindex">
+</head>
+<body>
+
+<!-- ============ TOAST CONTAINER ============ -->
+<div id="toastContainer" class="fixed top-24 right-4 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
+<!-- ============ NAVBAR ============ -->
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 h-20 flex items-center px-6 transition-all duration-500" style="background:rgba(250,250,249,0.85);backdrop-filter:blur(24px);border-bottom:1px solid rgba(0,0,0,0.05);">
+    <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
+        <a href="#" class="flex items-center gap-2" onclick="showSection('home')">
+            <span class="iconify text-2xl text-brand-700" data-icon="mdi:shoe-cleat"></span>
+            <span class="text-xl font-bold tracking-tight">PITCH<span class="text-brand-700">.</span></span>
+        </a>
+
+        <div class="hidden md:flex items-center gap-8">
+            <button onclick="filterCategory('society')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="society">Society</button>
+            <button onclick="filterCategory('futsal')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="futsal">Futsal</button>
+            <button onclick="filterCategory('campo')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="campo">Campo</button>
+            <button onclick="filterCategory('tenis')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="tenis">Tênis</button>
+            <button onclick="filterCategory('blusas')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="blusas">Blusas</button>
+            <button onclick="showGallery()" class="text-sm font-medium text-stone-600 hover:text-stone-900">Galeria</button>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <button onclick="toggleCart()" class="relative p-2 rounded-full hover:bg-stone-100 transition-colors">
+                <span class="iconify text-2xl" data-icon="mdi:cart-outline"></span>
+                <span id="cartCount" class="absolute -top-1 -right-1 w-5 h-5 bg-brand-700 text-white text-[10px] font-bold rounded-full flex items-center justify-center hidden">0</span>
+            </button>
+            <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-full hover:bg-stone-100 transition-colors">
+                <span class="iconify text-2xl" data-icon="mdi:menu"></span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- ============ MOBILE MENU ============ -->
+<div id="mobileMenu" class="fixed inset-0 z-[60] pointer-events-none" style="opacity:0;transition:opacity 0.3s;">
+    <div class="absolute inset-0 bg-black/50" onclick="toggleMobileMenu()"></div>
+    <div class="absolute top-0 right-0 w-72 h-full bg-white shadow-2xl p-8 flex flex-col gap-6" style="transform:translateX(100%);transition:transform 0.4s cubic-bezier(0.16,1,0.3,1);" id="mobileMenuPanel">
+        <div class="flex justify-between items-center">
+            <span class="font-bold text-lg">Categorias</span>
+            <button onclick="toggleMobileMenu()" class="p-1"><span class="iconify text-2xl" data-icon="mdi:close"></span></button>
+        </div>
+        <button onclick="filterCategory('society');toggleMobileMenu()" class="text-left py-3 border-b border-stone-100 font-medium">⚽ Society</button>
+        <button onclick="filterCategory('futsal');toggleMobileMenu()" class="text-left py-3 border-b border-stone-100 font-medium">🏀 Futsal</button>
+        <button onclick="filterCategory('campo');toggleMobileMenu()" class="text-left py-3 border-b border-stone-100 font-medium">🏆 Campo</button>
+        <button onclick="filterCategory('tenis');toggleMobileMenu()" class="text-left py-3 border-b border-stone-100 font-medium">👟 Tênis</button>
+        <button onclick="filterCategory('blusas');toggleMobileMenu()" class="text-left py-3 border-b border-stone-100 font-medium">👕 Blusas</button>
+        <button onclick="showGallery();toggleMobileMenu()" class="text-left py-3 border-b border-stone-100 font-medium">🖼️ Galeria</button>
+        <button onclick="showSection('home');toggleMobileMenu()" class="text-left py-3 font-medium text-brand-700">← Ver todos</button>
+    </div>
+</div>
+
+<!-- ============ HERO ============ -->
+<section id="heroSection" class="relative h-[90vh] flex items-center justify-center overflow-hidden rounded-b-[3rem] mt-20">
+    <img src="https://picsum.photos/seed/soccerfield99/1920/1080.jpg" class="absolute inset-0 w-full h-full object-cover scale-105" style="animation:pulse 15s ease-in-out infinite;" alt="Hero">
+    <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/70"></div>
+    <div class="relative z-10 text-center px-6">
+        <p class="text-xs font-bold uppercase tracking-[0.3em] text-brand-200 mb-6 animate-fade-in-up" style="animation-delay:0.2s;opacity:0;">Loja especializada em futebol</p>
+        <h1 class="font-serif text-5xl md:text-8xl font-normal text-white leading-[0.85] tracking-tighter animate-fade-in-up" style="animation-delay:0.4s;opacity:0;">
+            Seu jogo<br><em class="text-brand-200">merece</em> o melhor
+        </h1>
+        <p class="mt-8 text-lg text-stone-300 font-light max-w-xl mx-auto animate-fade-in-up" style="animation-delay:0.6s;opacity:0;">
+            Chuteiras Society, Futsal e Campo. Tênis e blusas para quem vive futebol.
+        </p>
+        <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style="animation-delay:0.8s;opacity:0;">
+            <button onclick="document.getElementById('productsSection').scrollIntoView({behavior:'smooth'})" class="shine-sweep bg-brand-700 text-white px-8 py-4 rounded-full text-sm font-bold uppercase tracking-wide hover:scale-105 transition-transform duration-150">
+                Ver Chuteiras
+            </button>
+            <a href="https://wa.me/5511999999999?text=Olá! Quero tirar algumas dúvidas sobre as chuteiras." target="_blank" class="bg-white/10 backdrop-blur-sm border border-white/20 text-white px-8 py-4 rounded-full text-sm font-bold uppercase tracking-wide hover:bg-white/20 transition-all duration-300 flex items-center justify-center gap-2">
+                <span class="iconify text-lg" data-icon="mdi:whatsapp"></span> Tirar Dúvidas
+            </a>
+        </div>
+    </div>
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/60">
+        <span class="text-[10px] uppercase tracking-widest">Scroll</span>
+        <div class="w-px h-8 bg-white/30 relative overflow-hidden">
+            <div class="w-full h-1/2 bg-white/80 absolute top-0" style="animation:scrollDown 1.5s ease-in-out infinite;"></div>
+        </div>
+    </div>
+    <style>@keyframes scrollDown { 0%{top:-50%} 100%{top:100%} }</style>
+</section>
+
+<!-- ============ PRODUCTS SECTION ============ -->
+<section id="productsSection" class="bg-cream py-20">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
+            <div id="categoryTitle" class="space-y-3">
+                <p class="uppercase text-sm tracking-[0.3em] text-stone-500">Catálogo</p>
+                <h2 class="text-3xl md:text-4xl font-semibold">Todos os Produtos</h2>
+            </div>
+            <div class="flex flex-wrap gap-3">
+                <button onclick="filterCategory('all')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="all">Todos</button>
+                <button onclick="filterCategory('society')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="society">Society</button>
+                <button onclick="filterCategory('futsal')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="futsal">Futsal</button>
+                <button onclick="filterCategory('campo')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="campo">Campo</button>
+                <button onclick="filterCategory('tenis')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="tenis">Tênis</button>
+                <button onclick="filterCategory('blusas')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="blusas">Blusas</button>
+            </div>
+        </div>
+
+        <div id="productsLoading" class="py-20 text-center text-stone-500">
+            <span class="iconify text-3xl animate-spin" data-icon="mdi:loading"></span>
+            <p class="mt-3 text-sm">Carregando produtos...</p>
+        </div>
+
+        <div id="productsGrid" class="hidden grid gap-6 sm:grid-cols-2 xl:grid-cols-3"></div>
+
+        <div id="emptyState" class="hidden py-20 text-center rounded-3xl bg-white shadow-lg">
+            <h3 class="text-xl font-semibold mb-3">Nada encontrado</h3>
+            <p class="text-stone-500">Não foi possível encontrar produtos para a categoria selecionada.</p>
+        </div>
+
+        <div id="errorState" class="hidden py-20 text-center rounded-3xl bg-white shadow-lg">
+            <span class="iconify text-3xl text-red-500" data-icon="mdi:alert-circle-outline"></span>
+            <h3 class="mt-3 text-xl font-semibold mb-2">Não foi possível carregar</h3>
+            <p id="errorStateMsg" class="text-stone-500">Tente novamente em instantes.</p>
+            <button onclick="loadProducts()" class="mt-5 rounded-2xl bg-brand-700 text-white px-6 py-3">Tentar de novo</button>
+        </div>
+    </div>
+</section>
+
+<!-- ============ GALLERY SECTION ============ -->
+<section id="gallerySection" class="hidden bg-cream py-20">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="mb-10 space-y-3">
+            <p class="uppercase text-sm tracking-[0.3em] text-stone-500">Pitch Futebol</p>
+            <h2 class="text-3xl md:text-4xl font-semibold">Galeria</h2>
+        </div>
+        <div id="galleryGrid" class="gallery-grid"></div>
+    </div>
+</section>
+
+<!-- ============ LIGHTBOX ============ -->
+<div id="lightbox" class="pointer-events-none">
+    <button id="lightboxClose" onclick="closeLightbox()" class="p-2">
+        <span class="iconify text-3xl" data-icon="mdi:close"></span>
+    </button>
+    <img id="lightboxImage" src="" alt="">
+</div>
+
+<!-- ============ CART OVERLAY ============ -->
+<div id="cartOverlay" class="cart-overlay fixed inset-0 z-50 bg-black/40 flex justify-end opacity-0 pointer-events-none">
+    <div class="cart-panel w-full max-w-md h-full bg-white p-6 shadow-2xl overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <p class="text-sm text-stone-500">Seu carrinho</p>
+                <h3 class="text-2xl font-semibold">Itens selecionados</h3>
+            </div>
+            <button onclick="toggleCart()" class="text-stone-500 hover:text-stone-900"><span class="iconify text-2xl" data-icon="mdi:close"></span></button>
+        </div>
+        <div class="mb-4 text-sm text-stone-500" id="cartItemsCount">(0 itens)</div>
+        <div id="cartItems" class="space-y-4 min-h-[220px]"></div>
+        <div id="cartFooter" class="mt-6 hidden">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-sm text-stone-500">Total</span>
+                <strong class="text-xl text-brand-700" id="cartTotal">R$ 0,00</strong>
+            </div>
+            <button onclick="openSiteCheckout()" class="w-full bg-brand-700 text-white py-3 rounded-2xl font-semibold hover:bg-brand-600">Finalizar compra</button>
+            <div class="mt-4 flex items-center justify-between text-sm text-stone-500">
+                <a id="wppCartLink" href="#" target="_blank" class="hover:text-brand-700">WhatsApp</a>
+                <a id="igCartLink" href="#" target="_blank" class="hover:text-brand-700">Instagram</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ PRODUCT MODAL ============ -->
+<div id="productModal" class="modal-overlay fixed inset-0 z-50 bg-black/40 opacity-0 pointer-events-none flex items-center justify-center p-6">
+    <div class="modal-content w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden transform transition-all duration-300">
+        <div class="grid gap-6 md:grid-cols-[1.2fr_0.8fr]">
+            <div class="relative overflow-hidden">
+                <img id="modalImage" class="w-full h-full object-cover" src="https://picsum.photos/seed/placeholder/800/800" alt="Produto">
+            </div>
+            <div class="p-6 flex flex-col gap-4">
+                <button onclick="closeProductModal()" class="self-end text-stone-400 hover:text-stone-700"><span class="iconify text-2xl" data-icon="mdi:close"></span></button>
+                <p class="text-xs uppercase tracking-[0.3em] text-stone-400">Marca <span id="modalBrand"></span></p>
+                <h3 id="modalName" class="text-3xl font-semibold"></h3>
+                <div class="flex items-center gap-3">
+                    <span id="modalPrice" class="text-3xl font-bold text-brand-700"></span>
+                    <span id="modalOldPrice" class="text-sm text-stone-400 line-through"></span>
+                </div>
+                <p id="modalDesc" class="text-stone-600 leading-7"></p>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm uppercase tracking-[0.2em] text-stone-500">Tamanhos</span>
+                        <span id="modalCategory" class="text-sm text-stone-400 uppercase"></span>
+                    </div>
+                    <div id="modalSizes" class="grid grid-cols-5 gap-3"></div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="changeModalQty(-1)" class="w-12 h-12 rounded-2xl border border-stone-200 bg-white text-xl">−</button>
+                    <span id="modalQty" class="text-xl font-semibold">1</span>
+                    <button onclick="changeModalQty(1)" class="w-12 h-12 rounded-2xl border border-stone-200 bg-white text-xl">+</button>
+                </div>
+                <button onclick="addModalToCart()" class="mt-4 w-full bg-brand-700 text-white py-3 rounded-2xl font-semibold hover:bg-brand-600">Adicionar ao carrinho</button>
+                <div class="flex items-center gap-3 pt-4 border-t border-stone-100 text-sm text-stone-500">
+                    <a id="modalWppLink" href="#" target="_blank" class="hover:text-brand-700 flex items-center gap-2"><span class="iconify" data-icon="mdi:whatsapp"></span> WhatsApp</a>
+                    <a id="modalIgLink" href="#" target="_blank" class="hover:text-brand-700 flex items-center gap-2"><span class="iconify" data-icon="mdi:instagram"></span> Instagram</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ CHECKOUT MODAL ============ -->
+<div id="checkoutModal" class="modal-overlay fixed inset-0 z-[70] bg-black/40 opacity-0 pointer-events-none flex items-center justify-center p-6">
+    <div class="modal-content w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden p-6">
+        <div class="flex flex-col gap-6">
+            <div class="flex items-center gap-3 justify-center">
+                <div id="step1Circle" class="step-circle current">1</div>
+                <div class="h-0.5 flex-1 bg-stone-200" id="stepLine1" style="width:0%"></div>
+                <div id="step2Circle" class="step-circle pending">2</div>
+                <div class="h-0.5 flex-1 bg-stone-200" id="stepLine2" style="width:0%"></div>
+                <div id="step3Circle" class="step-circle pending">3</div>
+            </div>
+            <div id="checkoutSuccess" class="hidden p-8 text-center rounded-3xl bg-emerald-50 border border-emerald-100">
+                <span class="iconify text-5xl text-emerald-600" data-icon="mdi:check-circle"></span>
+                <h3 class="mt-5 text-2xl font-semibold">Compra finalizada!</h3>
+                <p class="mt-2 text-stone-600">Seu pedido foi recebido e está sendo processado.</p>
+                <button onclick="closeCheckout()" class="mt-6 bg-brand-700 text-white px-6 py-3 rounded-2xl">Fechar</button>
+            </div>
+            <div id="checkoutStep1" class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-semibold">Dados do cliente</h3>
+                        <p class="text-sm text-stone-500">Informe seu nome, e-mail e telefone.</p>
+                    </div>
+                    <button onclick="closeCheckout()" class="text-stone-500 hover:text-stone-900"><span class="iconify text-2xl" data-icon="mdi:close"></span></button>
+                </div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <input id="chkName" type="text" placeholder="Nome completo" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700">
+                    <input id="chkEmail" type="email" placeholder="E-mail" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700">
+                    <input id="chkPhone" type="tel" inputmode="numeric" maxlength="15" placeholder="(00) 00000-0000" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700">
+                    <input id="chkCpf" type="text" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700">
+                    <input id="chkPassword" type="password" placeholder="Senha (mín. 8 caracteres)" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700 sm:col-span-2">
+                </div>
+                <p class="text-xs text-stone-500">
+                    Usamos seu e-mail e senha para criar ou acessar sua conta Pitch Futebol —
+                    é assim que você pode acompanhar este pedido depois.
+                </p>
+                <div id="checkoutAuthError" class="hidden rounded-2xl bg-red-50 border border-red-100 p-3 text-sm text-red-700"></div>
+                <div class="flex justify-end gap-3">
+                    <button onclick="closeCheckout()" class="rounded-2xl border border-stone-200 px-5 py-3 hover:bg-stone-50">Cancelar</button>
+                    <button id="step1NextBtn" onclick="goToStep(2)" class="rounded-2xl bg-brand-700 text-white px-5 py-3 hover:bg-brand-600">Próximo</button>
+                </div>
+            </div>
+            <div id="checkoutStep2" class="hidden space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-semibold">Endereço</h3>
+                        <p class="text-sm text-stone-500">Digite os dados para entrega.</p>
+                    </div>
+                    <button onclick="closeCheckout()" class="text-stone-500 hover:text-stone-900"><span class="iconify text-2xl" data-icon="mdi:close"></span></button>
+                </div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <input id="chkCep" type="text" inputmode="numeric" maxlength="9" placeholder="00000-000" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700">
+                    <input id="chkStreet" type="text" placeholder="Rua" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700">
+                    <input id="chkNum" type="text" placeholder="Número" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700">
+                    <input id="chkComp" type="text" placeholder="Complemento" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700">
+                    <input id="chkBairro" type="text" placeholder="Bairro" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700">
+                    <input id="chkCity" type="text" placeholder="Cidade" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700">
+                    <input id="chkState" type="text" maxlength="2" placeholder="UF (ex: SP)" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700 uppercase">
+                </div>
+                <div class="flex justify-between gap-3">
+                    <button onclick="goToStep(1)" class="rounded-2xl border border-stone-200 px-5 py-3 hover:bg-stone-50">Voltar</button>
+                    <button onclick="goToStep(3)" class="rounded-2xl bg-brand-700 text-white px-5 py-3 hover:bg-brand-600">Próximo</button>
+                </div>
+            </div>
+            <div id="checkoutStep3" class="hidden space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-semibold">Pagamento</h3>
+                        <p class="text-sm text-stone-500">Escolha como deseja pagar.</p>
+                    </div>
+                    <button onclick="closeCheckout()" class="text-stone-500 hover:text-stone-900"><span class="iconify text-2xl" data-icon="mdi:close"></span></button>
+                </div>
+                <div class="grid gap-4 sm:grid-cols-3">
+                    <label class="rounded-2xl border border-stone-200 p-5 cursor-pointer hover:border-brand-700">
+                        <input type="radio" name="payment" value="pix" class="hidden" checked>
+                        <div class="font-semibold">PIX</div>
+                        <p class="text-sm text-stone-500">5% de desconto</p>
+                    </label>
+                    <label class="rounded-2xl border border-stone-200 p-5 cursor-pointer hover:border-brand-700">
+                        <input type="radio" name="payment" value="boleto" class="hidden">
+                        <div class="font-semibold">Boleto</div>
+                        <p class="text-sm text-stone-500">Pagamento à vista</p>
+                    </label>
+                    <label class="rounded-2xl border border-stone-200 p-5 cursor-pointer hover:border-brand-700">
+                        <input type="radio" name="payment" value="cartao" class="hidden">
+                        <div class="font-semibold">Cartão</div>
+                        <p class="text-sm text-stone-500">Parcelado em até 3x</p>
+                    </label>
+                </div>
+                <div class="rounded-3xl border border-stone-200 p-5 bg-stone-50">
+                    <div class="mb-4 text-sm text-stone-500">Resumo do pedido</div>
+                    <div id="checkoutSummaryItems" class="space-y-3"></div>
+                    <div class="mt-4 flex items-center justify-between text-sm text-stone-500">
+                        <span>Total</span>
+                        <span id="checkoutTotal">R$ 0,00</span>
+                    </div>
+                </div>
+                <div id="checkoutError" class="hidden rounded-2xl bg-red-50 border border-red-100 p-3 text-sm text-red-700"></div>
+                <div class="flex justify-between gap-3">
+                    <button onclick="goToStep(2)" class="rounded-2xl border border-stone-200 px-5 py-3 hover:bg-stone-50">Voltar</button>
+                    <button id="finishOrderBtn" onclick="finishOrder()" class="rounded-2xl bg-brand-700 text-white px-5 py-3 hover:bg-brand-600">Finalizar pedido</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="bg-white py-10">
+    <div class="max-w-7xl mx-auto px-6 text-center text-sm text-stone-500">
+        <p>Pitch Futebol — Loja de chuteiras, tênis e acessórios para futebol.</p>
+        <p class="mt-2">Desenvolvido para demonstração de front-end e API simples.</p>
+    </div>
+</footer>
+
+<script src="./assets/app.js" defer></script>
+</body>
+</html>
