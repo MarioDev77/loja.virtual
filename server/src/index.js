@@ -76,6 +76,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// ─── Health (antes do CORS — sem dados sensíveis) ────────────────────────────
+app.get('/health', (req, res) => res.status(200).end());
+
 // ─── CORS ─────────────────────────────────────────────────────────────────────
 const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim())
@@ -158,9 +161,6 @@ app.use(
     etag: false,
   })
 );
-
-// ─── Health ───────────────────────────────────────────────────────────────────
-app.get('/health', (req, res) => res.status(200).end());
 
 // ─── API ──────────────────────────────────────────────────────────────────────
 app.use('/api/auth', authLimiter);
