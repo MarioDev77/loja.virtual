@@ -22,22 +22,6 @@
 // ---------------------------------------------------------------------------
 const API_BASE = 'https://lojavirtual-production-2708.up.railway.app/api';
 
-// URL base do servidor (sem /api) — usada para resolver caminhos de imagem
-// que chegam como "/seed-images/..." ou "/uploads/..." relativos à API.
-const SERVER_BASE = API_BASE.replace(/\/api$/, '');
-
-/**
- * Recebe um valor de image_url do banco e retorna sempre uma URL absoluta.
- * - Já começa com http(s): usa direto (ex: picsum, CDN externo)
- * - Começa com /: prefixo com SERVER_BASE (seed-images e uploads no Railway)
- * - Vazio / null: retorna string vazia para o fallback do img.src
- */
-function resolveImageUrl(url) {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  return `${SERVER_BASE}${url}`;
-}
-
 // ---------------------------------------------------------------------------
 // Estado em memória
 // ---------------------------------------------------------------------------
@@ -340,7 +324,7 @@ function renderProductCard(p) {
     imgWrap.appendChild(el('span', 'product-badge off', `-${pct}%`));
   }
   const img = document.createElement('img');
-  img.src = resolveImageUrl(p.image);
+  img.src = p.image || '';
   img.alt = p.name || 'Produto';
   img.loading = 'lazy';
   imgWrap.appendChild(img);
@@ -384,12 +368,11 @@ function openProductModal(product) {
   modalQty = 1;
   modalSize = (product.sizes && product.sizes[0]) || null;
 
-  document.getElementById('modalImage').src = resolveImageUrl(product.image);
+  document.getElementById('modalImage').src = product.image || '';
   document.getElementById('modalImage').alt = product.name || '';
   document.getElementById('modalBrand').textContent = product.brand || '';
   document.getElementById('modalName').textContent = product.name || '';
   document.getElementById('modalPrice').textContent = brl(product.price);
-  document.getElementById('modalCategory').textContent = product.category || '';
 
   const oldPriceEl = document.getElementById('modalOldPrice');
   if (product.oldPrice && product.oldPrice > product.price) {
@@ -491,7 +474,7 @@ function renderCartPanel() {
     const row = el('div', 'cart-line-item');
 
     const img = document.createElement('img');
-    img.src = resolveImageUrl(it.image);
+    img.src = it.image || '';
     img.alt = it.name || '';
     row.appendChild(img);
 
