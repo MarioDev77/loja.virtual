@@ -49,6 +49,11 @@ if ((process.env.JWT_SECRET || '').length < 32) {
 
 const app = express();
 
+// ─── Trust proxy (necessário para Railway/Render/Heroku) ──────────────────────
+// Sem isso, express-rate-limit lança ERR_ERL_UNEXPECTED_X_FORWARDED_FOR
+// porque o header X-Forwarded-For existe mas trust proxy está false (padrão).
+app.set('trust proxy', 1);
+
 // ─── Health (antes de tudo)
 app.get("/health", (req, res) => res.status(200).end());
 
