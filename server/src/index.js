@@ -13,8 +13,29 @@ const { errorHandler } = require('./routes/errorHandler');
 const { apiRouter } = require('./routes');
 const { UPLOAD_DIR } = require('./middlewares/upload');
 
+// Pasta de imagens do catálogo inicial (versionada no repositório,
+// diferente de UPLOAD_DIR que recebe uploads dinâmicos do admin em runtime).
+const SEED_IMAGES_DIR = path.resolve(__dirname, '../seed-images');
+
 // ─── Validação de env críticas no boot ───────────────────────────────────────
-const REQUIRED_ENV = ['JWT_SECRET', 'DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
+// A conexão com o MySQL pode vir de 3 formas (ver src/db/pool.js):
+//   1) MYSQL_URL / DATABASE_URL          (Railway, connection string)
+//   2) MYSQLHOST + MYSQLUSER + ...       (Railway, variáveis nativas)
+//   3) DB_HOST + DB_USER + ...           (local / docker-compose)
+// Por isso a validação aceita qualquer um dos três conjuntos — exigir
+// sempre DB_HOST quebraria o boot em produção no Railway.
+const hasConnectionString = !!(process.env.MYSQL_URL || process.env.DATABASE_URL);
+const hasRailwayVars = !!process.env.MYSQLHOST;
+const hasGenericDbVars = !!process.env.DB_HOST;
+
+if (!hasConnectionString && !hasRailwayVars && !hasGenericDbVars) {
+  console.error(
+    'FATAL: missing database configuration — set MYSQL_URL, or MYSQLHOST/MYSQLUSER/MYSQLPASSWORD/MYSQLDATABASE, or DB_HOST/DB_USER/DB_PASSWORD/DB_NAME'
+  );
+  process.exit(1);
+}
+
+const REQUIRED_ENV = ['JWT_SECRET'];
 for (const key of REQUIRED_ENV) {
   if (!process.env[key]) {
     console.error(`FATAL: missing required env var: ${key}`);
@@ -159,6 +180,28 @@ app.use(
   express.static(UPLOAD_DIR, {
     index: false,       // sem listagem de diretório
     dotfiles: 'deny',  // sem arquivos ocultos
+    etag: false,
+  })
+);
+
+// ─── Imagens do catálogo inicial (seed) ───────────────────────────────────────
+// Mesmas proteções do /uploads. Pasta versionada no repositório (diferente de
+// UPLOAD_DIR), pois são imagens fixas dos produtos, não uploads de usuário.
+app.use(
+  '/seed-images',
+  (req, res, next) => {
+    if (!['GET', 'HEAD'].includes(req.method))
+      return res.status(405).end();
+    if (/[/\\]/.test(req.params[0] || '') || req.path.includes('..'))
+      return res.status(400).end();
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    res.setHeader('Content-Security-Policy', "default-src 'none'");
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    next();
+  },
+  express.static(SEED_IMAGES_DIR, {
+    index: false,
+    dotfiles: 'deny',
     etag: false,
   })
 );

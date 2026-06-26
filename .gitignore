@@ -15,6 +15,7 @@ yarn-error.log*
 # ─── Uploads de usuário (imagens de produtos enviadas em runtime) ───────────
 server/uploads/
 uploads/
+# server/seed-images/ é versionado de propósito — imagens fixas do catálogo inicial
 
 # ─── Logs ─────────────────────────────────────────────────────────────────────
 *.log

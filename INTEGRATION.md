@@ -194,3 +194,89 @@ npx serve .             # ou: python3 -m http.server 5500
 
 Garanta que `CORS_ORIGIN` no `.env` do servidor inclua a origem real de onde
 o front é servido (ex.: `http://localhost:5500`).
+
+## Banco de dados: MySQL no Railway
+
+O `src/db/pool.js` agora resolve a conexão MySQL de 3 formas possíveis,
+nesta ordem de prioridade — então o mesmo código funciona local e em
+produção sem alterar uma linha:
+
+1. **`MYSQL_URL` / `DATABASE_URL`** — connection string completa
+   (`mysql://user:senha@host:porta/banco`). No Railway, basta adicionar
+   no serviço da API a variável `MYSQL_URL=${{MySQL.MYSQL_URL}}`, que
+   referencia automaticamente a URL do plugin MySQL linkado ao projeto.
+2. **`MYSQLHOST` / `MYSQLPORT` / `MYSQLUSER` / `MYSQLPASSWORD` /
+   `MYSQLDATABASE`** — variáveis nativas que o plugin MySQL do Railway
+   expõe, caso prefira referenciá-las individualmente em vez da URL.
+3. **`DB_HOST` / `DB_PORT` / `DB_USER` / `DB_PASSWORD` / `DB_NAME`** —
+   variáveis genéricas, usadas em desenvolvimento local / docker-compose.
+
+SSL liga automaticamente sempre que o host de conexão não é
+`localhost`/`127.0.0.1`/`db`/`mysql` — ou seja, liga sozinho ao conectar
+no Railway, sem precisar configurar nada manualmente. É possível forçar
+com `DB_SSL=true` ou `DB_SSL=false` se necessário.
+
+### Passo a passo para subir o banco no Railway
+
+1. No projeto do Railway, adicione um serviço **MySQL** (template oficial).
+2. No serviço da **API** (Node), adicione a variável `MYSQL_URL` referenciando
+   o plugin: `MYSQL_URL=${{MySQL.MYSQL_URL}}` (autocomplete no painel do
+   Railway sugere essa referência).
+3. Rode o schema e o seed contra o banco do Railway. Duas formas:
+   - **Via Railway CLI**, do seu computador:
+     ```bash
+     railway connect MySQL   # abre um client mysql conectado ao serviço
+     # dentro do client:
+     source server/sql/schema.sql;
+     source server/sql/seed_products.sql;
+     ```
+   - **Via TCP Proxy** (Settings → Networking → TCP Proxy, no serviço MySQL),
+     que expõe um host/porta públicos para conectar de fora do Railway:
+     ```bash
+     mysql -h <host-do-proxy> -P <porta-do-proxy> -u root -p \
+       --default-character-set=utf8mb4 < server/sql/schema.sql
+     mysql -h <host-do-proxy> -P <porta-do-proxy> -u root -p \
+       --default-character-set=utf8mb4 < server/sql/seed_products.sql
+     ```
+   > **Importante:** sempre use `--default-character-set=utf8mb4` ao importar
+   > via linha de comando. Sem essa flag, o client `mysql` usa `latin1` por
+   > padrão na sessão e corrompe acentos (ex.: "respirável" vira
+   > "respirÃ¡vel") mesmo que o arquivo `.sql` já esteja em UTF-8 correto —
+   > o arquivo fica certo, é a sessão de importação que reinterpreta os
+   > bytes errado.
+4. Confirme que `JWT_SECRET` (mín. 32 caracteres), `ADMIN_USER`,
+   `ADMIN_PASS_HASH`, `CORS_ORIGIN` (com a URL real do front em produção)
+   e `OWNERSHIP_TOKEN_SECRET` também estão configurados no serviço da API.
+5. Redeploy do serviço da API — o boot vai validar as variáveis e recusar
+   subir (`FATAL`) se algo essencial estiver faltando.
+
+## Imagens reais do catálogo e do hero
+
+- **Hero da home** (`front/index.html`): a imagem de placeholder (Unsplash)
+  foi trocada pela foto real da loja, salva em
+  `front/assets/img/hero.webp` — um asset estático do front, sem
+  depender do backend.
+- **Fotos dos 12 produtos de chuteira** (society, futsal e campo —
+  IDs 1 a 12 no seed): trocadas pelas fotos reais enviadas. Como as fotos
+  recebidas não cobriam exatamente as mesmas marcas do seed original
+  (ex.: não havia chuteira futsal da Adidas ou da Mizuno nas fotos), o
+  **nome e a marca dos 12 produtos foram ajustados para refletir a marca
+  real visível em cada foto** — preço, categoria, tamanhos e estoque não
+  mudaram. Tênis (tenis) e roupas (blusas) continuam com a imagem
+  genérica antiga, pois não havia fotos reais desses itens.
+- Essas 12 imagens ficam em **`server/seed-images/`** — uma pasta nova,
+  diferente de `server/uploads/`. A diferença importa para o deploy:
+  - `server/uploads/` está no `.gitignore` de propósito, porque recebe
+    uploads dinâmicos feitos pelo admin em runtime (não devem ir pro
+    repositório).
+  - `server/seed-images/` **é versionada** (não está no `.gitignore`),
+    porque são imagens fixas do catálogo inicial — precisam ir junto no
+    deploy para aparecerem em produção.
+  - Ambas as pastas são servidas como estático pelo Express
+    (`src/index.js`) com exatamente as mesmas proteções: só `GET`/`HEAD`,
+    bloqueio de path traversal, CSP restritiva, `nosniff` e cache longo
+    e imutável.
+- Todas as imagens passaram pelo mesmo pipeline de segurança do upload
+  feito pelo admin: reprocessadas com `sharp`/Pillow, convertidas para
+  WebP, redimensionadas (máx. 1200px), com EXIF/GPS/metadata removidos, e
+  renomeadas para um hash aleatório (nunca o nome original do arquivo).

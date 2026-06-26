@@ -13,27 +13,27 @@ VALUES
   (4,'tenis','Tênis', 'Tênis para street e dia a dia', NULL),
   (5,'blusas','Blusas', 'Moda esportiva (blusas)', NULL)
 ON DUPLICATE KEY UPDATE
-  slug=VALUES(slug), name=VALUES(name), description=VALUES(description), image_url=VALUES(image);
+  slug=VALUES(slug), name=VALUES(name), description=VALUES(description), image_url=VALUES(image_url);
 
 -- Produtos (mapeando do seed antigo; inclui stock_qty e is_featured)
 -- Observação: sizes_json pode vir como números ou string JSON.
 INSERT INTO products
   (id, category_id, brand, name, slug, price, old_price, currency, image_url, description, sizes_json, stock_qty, is_featured, is_active)
 VALUES
-  (1,1,'Nike','Nike Mercurial Superfly Society','nike-mercurial-superfly-society',599.90,749.90,'BRL','https://picsum.photos/seed/nikesociety1/600/600.jpg','Chuteira society com cabedal em malha encapsulada e solado de borracha para gramado sintético. Tecnologia Flyknit para ajuste superior.','[38,39,40,41,42,43,44]',120,1,1),
-  (2,1,'Adidas','Adidas Predator Edge Society','adidas-predator-edge-society',549.90,NULL,'BRL','https://picsum.photos/seed/adipredsociety/600/600.jpg','Elementos de controle de bola em borracha texturizada. Cabedal em couro sintético premium para society.','[38,39,40,41,42,43]',90,0,1),
-  (3,1,'Puma','Puma Future Z Society','puma-future-z-society',479.90,599.90,'BRL','https://picsum.photos/seed/pumafutsoc/600/600.jpg','Design dinâmico com FUZIONFIT+ para ajuste compressivo. Ideal para jogadores criativos no society.','[39,40,41,42,43,44]',70,0,1),
-  (4,1,'Nike','Nike Phantom GX Society','nike-phantom-gx-society',529.90,NULL,'BRL','https://picsum.photos/seed/nikephantomsoc/600/600.jpg','Gripknit no cabedal para toque de bola excepcional. Perfeita para armadores no society.','[38,39,40,41,42,43,44]',60,1,1),
+  (1,1,'Nike','Nike Mercurial Zoom Society','nike-mercurial-zoom-society',599.90,749.90,'BRL','/seed-images/b894ecddd6f45d77783e3fe2aafa87e7.webp','Chuteira society com cabedal em malha encapsulada e solado de borracha para gramado sintético. Tecnologia Flyknit para ajuste superior.','[38,39,40,41,42,43,44]',120,1,1),
+  (2,1,'Adidas','Adidas F50 Society','adidas-f50-society',549.90,NULL,'BRL','/seed-images/39c6829d809c3f38f91d9936a00d4fda.webp','Elementos de controle de bola em borracha texturizada. Cabedal em couro sintético premium para society.','[38,39,40,41,42,43]',90,0,1),
+  (3,1,'Nike','Nike Mercurial Vapor Society','nike-mercurial-vapor-society',479.90,599.90,'BRL','/seed-images/fa7e8c7a7f3b5b552e7d68be25f3c4d6.webp','Design dinâmico com toque aprimorado. Ideal para jogadores criativos no society.','[39,40,41,42,43,44]',70,0,1),
+  (4,1,'Adidas','Adidas F50 Cryfzasat Society','adidas-f50-cryfzasat-society',529.90,NULL,'BRL','/seed-images/6abd8f48707108e523c26bbd0646af1f.webp','Cabedal leve com travas baixas multitaco. Perfeita para armadores no society.','[38,39,40,41,42,43,44]',60,1,1),
 
-  (5,2,'Nike','Nike Tiempo Legend Futsal','nike-tiempo-legend-futsal',649.90,849.90,'BRL','https://picsum.photos/seed/niketiempofut/600/600.jpg','Couro legítimo macio para toque premium. Solado liso para quadra de futsal com amortecimento responsivo.','[38,39,40,41,42,43,44]',80,1,1),
-  (6,2,'Adidas','Adidas Copa Pure Futsal','adidas-copa-pure-futsal',599.90,NULL,'BRL','https://picsum.photos/seed/adicopafut/600/600.jpg','Couro sintético Striker Upper para toque de bola excepcional. Design clássico para o futsal.','[39,40,41,42,43]',55,0,1),
-  (7,2,'Joma','Joma Super Regate Futsal','joma-super-regate-futsal',319.90,399.90,'BRL','https://picsum.photos/seed/jomaregate/600/600.jpg','Excelente custo-benefício para futsal. Cabedal em couro sintético flexível com solado de borracha liso.','[38,39,40,41,42,43,44]',40,0,1),
-  (8,2,'Mizuno','Mizuno Morelia Neo Futsal','mizuno-morelia-neo-futsal',699.90,NULL,'BRL','https://picsum.photos/seed/mizumorelia/600/600.jpg','Couro cachemira ultra leve. A mais premium das chuteiras de futsal para jogadores exigentes.','[39,40,41,42,43]',30,1,1),
+  (5,2,'Nike','Nike Streetgato Futsal','nike-streetgato-futsal',649.90,849.90,'BRL','/seed-images/569d759be3cc560ab181268c5e027b35.webp','Couro sintético macio para toque premium. Solado liso para quadra de futsal com amortecimento responsivo.','[38,39,40,41,42,43,44]',80,1,1),
+  (6,2,'Nike','Nike Tiempo Legend Futsal','nike-tiempo-legend-futsal',599.90,NULL,'BRL','/seed-images/5edc5a7f325fc6d04f1803d0a2416678.webp','Couro legítimo com Striker Upper para toque de bola excepcional. Design clássico para o futsal.','[39,40,41,42,43]',55,0,1),
+  (7,2,'Joma','Joma Top Flex Futsal','joma-top-flex-futsal',319.90,399.90,'BRL','/seed-images/cb34f3ec459f52cd2b8f930e03f6ba7c.webp','Excelente custo-benefício para futsal. Cabedal em couro sintético flexível com solado de borracha liso.','[38,39,40,41,42,43,44]',40,0,1),
+  (8,2,'Nike','Nike Streetgato Pro Futsal','nike-streetgato-pro-futsal',699.90,NULL,'BRL','/seed-images/3f435f529d697d7f5fe45c3734d038f6.webp','Cabedal em camurça ultra leve. Uma das chuteiras de futsal mais desejadas por jogadores exigentes.','[39,40,41,42,43]',30,1,1),
 
-  (9,3,'Nike','Nike Mercurial Vapor Campo','nike-mercurial-vapor-campo',899.90,1099.90,'BRL','https://picsum.photos/seed/mercvaporcamp/600/600.jpg','Chuteira de campo com travas metálicas para gramado natural. Velocidade máxima com cabedal em Flyknit.','[38,39,40,41,42,43,44]',25,1,1),
-  (10,3,'Adidas','Adidas X Speedportal Campo','adidas-x-speedportal-campo',849.90,NULL,'BRL','https://picsum.photos/seed/adixspeed/600/600.jpg','Para jogadores rápidos. Características SPEEDSKIN e travas de alumínio para performance em campo natural.','[39,40,41,42,43]',35,0,1),
-  (11,3,'Puma','Puma Ultra Ultimate Campo','puma-ultra-ultimate-campo',799.90,999.90,'BRL','https://picsum.photos/seed/pumaultracamp/600/600.jpg','Ultra leve com tecnologia PWRTAPE para estabilidade. Travas em alumínio para gramado natural.','[38,39,40,41,42,43,44]',20,0,1),
-  (12,3,'Nike','Nike Phantom Luna Campo','nike-phantom-luna-campo',949.90,NULL,'BRL','https://picsum.photos/seed/phantomluna/600/600.jpg','Precisão e controle em campo natural. Gripknit 3.0 com travas côncavas para giro e mudança de direção.','[39,40,41,42,43,44]',15,1,1),
+  (9,3,'Nike','Nike Mercurial Vapor Campo','nike-mercurial-vapor-campo',899.90,1099.90,'BRL','/seed-images/8097d909fc74f9fc73882723f5f8dc23.webp','Chuteira de campo com travas metálicas para gramado natural. Velocidade máxima com cabedal em Flyknit.','[38,39,40,41,42,43,44]',25,1,1),
+  (10,3,'Adidas','Adidas F50 Elite Campo','adidas-f50-elite-campo',849.90,NULL,'BRL','/seed-images/4147f0a2e5a710aa7aefbc7cfc8970ae.webp','Para jogadores rápidos. Travas de alumínio para performance em campo natural.','[39,40,41,42,43]',35,0,1),
+  (11,3,'Puma','Puma Future Ultimate Campo','puma-future-ultimate-campo',799.90,999.90,'BRL','/seed-images/ace5077c8f5d7d3403f91e2bbc7faa7d.webp','Ultra leve com tecnologia de ajuste compressivo. Travas em alumínio para gramado natural.','[38,39,40,41,42,43,44]',20,0,1),
+  (12,3,'Nike','Nike Mercurial Superfly Campo','nike-mercurial-superfly-campo',949.90,NULL,'BRL','/seed-images/ad3322eb1e972a1196fd87cc4af347ab.webp','Precisão e controle em campo natural. Cabedal Flyknit com travas côncavas para giro e mudança de direção.','[39,40,41,42,43,44]',15,1,1),
 
   (13,4,'Nike','Nike Air Max 90','nike-air-max-90',799.90,949.90,'BRL','https://picsum.photos/seed/airmax90x/600/600.jpg','Clássico do streetwear com amortecimento Air visível. Perfeito para o dia a dia com estilo esportivo.','[38,39,40,41,42,43,44]',60,0,1),
   (14,4,'Adidas','Adidas Samba OG','adidas-samba-og',549.90,NULL,'BRL','https://picsum.photos/seed/sambaogx/600/600.jpg','O tênis que nasceu no campo e dominou as ruas. Couro premium com solado em borracha gum.','[38,39,40,41,42,43,44]',55,1,1),
