@@ -1,33 +1,183 @@
 'use strict';
 
+require('dotenv').config();
+
 const express = require('express');
+const helmet = require('helmet');
+const cors = require('cors');
+const rateLimit = require('express-rate-limit');
+const compression = require('compression');
+const path = require('path');
 
-const productsRoutes = require('./products');
-const ordersRoutes = require('./orders');
-const authRoutes = require('./auth');
-const adminRoutes = require('./admin');
+const { errorHandler } = require('./routes/errorHandler');
+const { apiRouter } = require('./routes');
+const { UPLOAD_DIR } = require('./middlewares/upload');
 
-const apiRouter = express.Router();
-
-// ─── Rotas públicas / semi-públicas ──────────────────────────────────────────
-apiRouter.use('/products', productsRoutes);
-apiRouter.use('/orders', ordersRoutes);
-apiRouter.use('/auth', authRoutes);
-
-// ─── Rotas de admin ───────────────────────────────────────────────────────────
-// SEGURANÇA: prefixo não óbvio. Qualquer tentativa em /api/admin retorna 404.
-// Mude ADMIN_ROUTE_PREFIX no .env para maior obscuridade.
-const adminPrefix = process.env.ADMIN_ROUTE_PREFIX || '/manage';
-apiRouter.use(adminPrefix, adminRoutes);
-
-// Bloqueia tentativas óbvias de descoberta de painel admin
-const COMMON_ADMIN_PATHS = [
-  '/admin', '/administrator', '/wp-admin', '/dashboard',
-  '/panel', '/backoffice', '/cp', '/controlpanel',
-];
-for (const p of COMMON_ADMIN_PATHS) {
-  apiRouter.all(p, (req, res) => res.status(404).json({ error: 'Not found' }));
-  apiRouter.all(`${p}/*`, (req, res) => res.status(404).json({ error: 'Not found' }));
+// ─── Validação de env críticas no boot ───────────────────────────────────────
+const REQUIRED_ENV = ['JWT_SECRET', 'DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
+for (const key of REQUIRED_ENV) {
+  if (!process.env[key]) {
+    console.error(`FATAL: missing required env var: ${key}`);
+    process.exit(1);
+  }
+}
+if ((process.env.JWT_SECRET || '').length < 32) {
+  console.error('FATAL: JWT_SECRET must be at least 32 characters');
+  process.exit(1);
 }
 
-module.exports = { apiRouter };
+const app = express();
+
+// ─── Health (antes de tudo)
+app.get("/health", (req, res) => res.status(200).end());
+
+// ─── Fingerprinting ───────────────────────────────────────────────────────────
+app.disable('x-powered-by');
+app.set('etag', false);
+
+// ─── Helmet ───────────────────────────────────────────────────────────────────
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'none'"],
+        scriptSrc: ["'self'"],
+        connectSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:'],
+        styleSrc: ["'self'"],
+        fontSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        frameAncestors: ["'none'"],
+        baseUri: ["'none'"],
+        formAction: ["'self'"],
+        upgradeInsecureRequests: [],
+      },
+    },
+    crossOriginEmbedderPolicy: true,
+    crossOriginOpenerPolicy: { policy: 'same-origin' },
+    crossOriginResourcePolicy: { policy: 'same-origin' },
+    dnsPrefetchControl: { allow: false },
+    frameguard: { action: 'deny' },
+    hidePoweredBy: true,
+    hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+    ieNoOpen: true,
+    noSniff: true,
+    originAgentCluster: true,
+    permittedCrossDomainPolicies: { permittedPolicies: 'none' },
+    referrerPolicy: { policy: 'no-referrer' },
+    xssFilter: true,
+  })
+);
+
+// ─── Headers extras ──────────────────────────────────────────────────────────
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('Permissions-Policy', 'geolocation=(), camera=(), microphone=()');
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('Pragma', 'no-cache');
+  next();
+});
+
+
+// ─── CORS ─────────────────────────────────────────────────────────────────────
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim())
+  : ['http://localhost:5500'];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) {
+        if (process.env.NODE_ENV === 'production')
+          return callback(new Error('CORS: origin required in production'));
+        return callback(null, true);
+      }
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error(`CORS: origin ${origin} not allowed`));
+    },
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: false,
+    optionsSuccessStatus: 204,
+  })
+);
+
+// ─── Compressão ───────────────────────────────────────────────────────────────
+app.use(compression());
+
+// ─── Body parsers ─────────────────────────────────────────────────────────────
+app.use(express.json({ limit: '50kb', strict: true }));
+
+// Rejeita Content-Type errado em mutations (exceto multipart — usado no upload)
+app.use((req, res, next) => {
+  if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
+    const ct = req.headers['content-type'] || '';
+    if (!ct.includes('application/json') && !ct.includes('multipart/form-data')) {
+      return res.status(415).json({ error: 'Content-Type must be application/json or multipart/form-data' });
+    }
+  }
+  return next();
+});
+
+// ─── Rate limiting global ─────────────────────────────────────────────────────
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 150,
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+    message: { error: 'Too many requests, please try again later' },
+  })
+);
+
+// Rate limit reforçado para auth
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts, please try again later' },
+});
+
+// ─── Arquivos de upload (estático, só imagens processadas) ───────────────────
+// Servido com headers restritivos — sem execução de scripts
+app.use(
+  '/uploads',
+  (req, res, next) => {
+    // Só GET e HEAD permitidos
+    if (!['GET', 'HEAD'].includes(req.method))
+      return res.status(405).end();
+    // Path traversal: rejeita qualquer coisa com / ou .. fora do nome do arquivo
+    if (/[/\\]/.test(req.params[0] || '') || req.path.includes('..'))
+      return res.status(400).end();
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    res.setHeader('Content-Security-Policy', "default-src 'none'");
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    next();
+  },
+  express.static(UPLOAD_DIR, {
+    index: false,       // sem listagem de diretório
+    dotfiles: 'deny',  // sem arquivos ocultos
+    etag: false,
+  })
+);
+
+// ─── API ──────────────────────────────────────────────────────────────────────
+app.use('/api/auth', authLimiter);
+app.use('/api', apiRouter);
+
+// ─── Catch-all ────────────────────────────────────────────────────────────────
+app.use((req, res) => res.status(404).json({ error: 'Not found' }));
+
+// ─── Error handler ────────────────────────────────────────────────────────────
+app.use(errorHandler);
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+const PORT = Number(process.env.PORT || 3000);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`[boot] Pitch Futebol API on port ${PORT} (${process.env.NODE_ENV || 'development'})`);
+  console.log(`[boot] Uploads: ${UPLOAD_DIR}`);
+});
+
+module.exports = app;
