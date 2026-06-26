@@ -1,349 +1,415 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pitch Futebol — Chuteiras & Moda</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        cream: '#FDFCF8',
-                        savor: '#F3EFE0',
-                        brand: { 50:'#faf5ff', 100:'#f3e8ff', 200:'#e9d5ff', 500:'#a855f7', 600:'#9333ea', 700:'#7e22ce', 800:'#6b21a8', 900:'#3b0764' },
-                        pitch: { 50:'#f0fdf4', 100:'#dcfce7', 500:'#22c55e', 600:'#16a34a', 700:'#15803d' }
-                    },
-                    borderRadius: { '4xl': '2rem' },
-                    fontFamily: { sans: ['Inter'], serif: ['Playfair Display'] }
-                }
-            }
-        }
-    </script>
-    <link rel="stylesheet" href="./assets/styles.css">
-    <meta name="robots" content="noindex">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pitch Futebol — Chuteiras & Moda</title>
+  <meta name="description" content="Loja especializada em chuteiras Society, Futsal e Campo. Tênis e blusas para quem vive futebol.">
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://code.iconify.design/3/3.1.0/iconify.min.js" defer></script>
+  <link rel="stylesheet" href="./assets/styles.css">
 </head>
 <body>
 
-<!-- ============ TOAST CONTAINER ============ -->
-<div id="toastContainer" class="fixed top-24 right-4 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+<!-- TOAST -->
+<div id="toastContainer" aria-live="polite"></div>
 
-<!-- ============ NAVBAR ============ -->
-<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 h-20 flex items-center px-6 transition-all duration-500" style="background:rgba(250,250,249,0.85);backdrop-filter:blur(24px);border-bottom:1px solid rgba(0,0,0,0.05);">
-    <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
-        <a href="#" class="flex items-center gap-2" onclick="showSection('home')">
-            <span class="iconify text-2xl text-brand-700" data-icon="mdi:shoe-cleat"></span>
-            <span class="text-xl font-bold tracking-tight">PITCH<span class="text-brand-700">.</span></span>
-        </a>
+<!-- ====== NAVBAR ====== -->
+<nav id="navbar" role="navigation" aria-label="Navegação principal">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo" onclick="showSection('home'); return false;" aria-label="Pitch Futebol — Início">
+      <div class="nav-logo-mark"><span>P</span></div>
+      <span class="nav-brand">PITCH</span>
+    </a>
 
-        <div class="hidden md:flex items-center gap-8">
-            <button onclick="filterCategory('society')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="society">Society</button>
-            <button onclick="filterCategory('futsal')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="futsal">Futsal</button>
-            <button onclick="filterCategory('campo')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="campo">Campo</button>
-            <button onclick="filterCategory('tenis')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="tenis">Tênis</button>
-            <button onclick="filterCategory('blusas')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="blusas">Blusas</button>
-            <button onclick="showGallery()" class="text-sm font-medium text-stone-600 hover:text-stone-900">Galeria</button>
-        </div>
-
-        <div class="flex items-center gap-4">
-            <button onclick="toggleCart()" class="relative p-2 rounded-full hover:bg-stone-100 transition-colors">
-                <span class="iconify text-2xl" data-icon="mdi:cart-outline"></span>
-                <span id="cartCount" class="absolute -top-1 -right-1 w-5 h-5 bg-brand-700 text-white text-[10px] font-bold rounded-full flex items-center justify-center hidden">0</span>
-            </button>
-            <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-full hover:bg-stone-100 transition-colors">
-                <span class="iconify text-2xl" data-icon="mdi:menu"></span>
-            </button>
-        </div>
+    <div class="nav-links" role="menubar">
+      <button class="nav-link cat-tab" data-cat="society" onclick="filterCategory('society')" role="menuitem">Society</button>
+      <button class="nav-link cat-tab" data-cat="futsal"  onclick="filterCategory('futsal')"  role="menuitem">Futsal</button>
+      <button class="nav-link cat-tab" data-cat="campo"   onclick="filterCategory('campo')"   role="menuitem">Campo</button>
+      <button class="nav-link cat-tab" data-cat="tenis"   onclick="filterCategory('tenis')"   role="menuitem">Tênis</button>
+      <button class="nav-link cat-tab" data-cat="blusas"  onclick="filterCategory('blusas')"  role="menuitem">Blusas</button>
+      <button class="nav-link" onclick="showGallery()" role="menuitem">Galeria</button>
     </div>
+
+    <div class="nav-actions">
+      <button class="nav-cart-btn" onclick="toggleCart()" aria-label="Abrir carrinho">
+        <span class="iconify" data-icon="mdi:shopping-bag-outline" style="font-size:18px"></span>
+        <span id="cartCount" aria-label="itens no carrinho">0</span>
+      </button>
+      <button class="nav-hamburger" onclick="toggleMobileMenu()" aria-label="Abrir menu" aria-expanded="false">
+        <span class="iconify" data-icon="mdi:menu" style="font-size:20px"></span>
+      </button>
+    </div>
+  </div>
 </nav>
 
-<!-- ============ MOBILE MENU ============ -->
-<div id="mobileMenu" class="fixed inset-0 z-[60] pointer-events-none" style="opacity:0;transition:opacity 0.3s;">
-    <div class="absolute inset-0 bg-black/50" onclick="toggleMobileMenu()"></div>
-    <div class="absolute top-0 right-0 w-72 h-full bg-white shadow-2xl p-8 flex flex-col gap-6" style="transform:translateX(100%);transition:transform 0.4s cubic-bezier(0.16,1,0.3,1);" id="mobileMenuPanel">
-        <div class="flex justify-between items-center">
-            <span class="font-bold text-lg">Categorias</span>
-            <button onclick="toggleMobileMenu()" class="p-1"><span class="iconify text-2xl" data-icon="mdi:close"></span></button>
-        </div>
-        <button onclick="filterCategory('society');toggleMobileMenu()" class="text-left py-3 border-b border-stone-100 font-medium">⚽ Society</button>
-        <button onclick="filterCategory('futsal');toggleMobileMenu()" class="text-left py-3 border-b border-stone-100 font-medium">🏀 Futsal</button>
-        <button onclick="filterCategory('campo');toggleMobileMenu()" class="text-left py-3 border-b border-stone-100 font-medium">🏆 Campo</button>
-        <button onclick="filterCategory('tenis');toggleMobileMenu()" class="text-left py-3 border-b border-stone-100 font-medium">👟 Tênis</button>
-        <button onclick="filterCategory('blusas');toggleMobileMenu()" class="text-left py-3 border-b border-stone-100 font-medium">👕 Blusas</button>
-        <button onclick="showGallery();toggleMobileMenu()" class="text-left py-3 border-b border-stone-100 font-medium">🖼️ Galeria</button>
-        <button onclick="showSection('home');toggleMobileMenu()" class="text-left py-3 font-medium text-brand-700">← Ver todos</button>
+<!-- ====== MOBILE MENU ====== -->
+<div id="mobileMenu" role="dialog" aria-label="Menu de navegação" aria-modal="true">
+  <div class="mobile-backdrop" onclick="toggleMobileMenu()"></div>
+  <div id="mobileMenuPanel">
+    <div class="mobile-header">
+      <span class="mobile-title">Menu</span>
+      <button class="mobile-close" onclick="toggleMobileMenu()" aria-label="Fechar menu">
+        <span class="iconify" data-icon="mdi:close" style="font-size:18px"></span>
+      </button>
     </div>
+    <button class="mobile-link cat-tab" data-cat="society" onclick="filterCategory('society'); toggleMobileMenu()">Society</button>
+    <button class="mobile-link cat-tab" data-cat="futsal"  onclick="filterCategory('futsal');  toggleMobileMenu()">Futsal</button>
+    <button class="mobile-link cat-tab" data-cat="campo"   onclick="filterCategory('campo');   toggleMobileMenu()">Campo</button>
+    <button class="mobile-link cat-tab" data-cat="tenis"   onclick="filterCategory('tenis');   toggleMobileMenu()">Tênis</button>
+    <button class="mobile-link cat-tab" data-cat="blusas"  onclick="filterCategory('blusas');  toggleMobileMenu()">Blusas</button>
+    <button class="mobile-link" onclick="showGallery(); toggleMobileMenu()">Galeria</button>
+    <button class="mobile-link accent" onclick="showSection('home'); toggleMobileMenu()">← Ver todos os produtos</button>
+  </div>
 </div>
 
-<!-- ============ HERO ============ -->
-<section id="heroSection" class="relative h-[90vh] flex items-center justify-center overflow-hidden rounded-b-[3rem] mt-20">
-    <img src="https://picsum.photos/seed/soccerfield99/1920/1080.jpg" class="absolute inset-0 w-full h-full object-cover scale-105" style="animation:pulse 15s ease-in-out infinite;" alt="Hero">
-    <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/70"></div>
-    <div class="relative z-10 text-center px-6">
-        <p class="text-xs font-bold uppercase tracking-[0.3em] text-brand-200 mb-6 animate-fade-in-up" style="animation-delay:0.2s;opacity:0;">Loja especializada em futebol</p>
-        <h1 class="font-serif text-5xl md:text-8xl font-normal text-white leading-[0.85] tracking-tighter animate-fade-in-up" style="animation-delay:0.4s;opacity:0;">
-            Seu jogo<br><em class="text-brand-200">merece</em> o melhor
-        </h1>
-        <p class="mt-8 text-lg text-stone-300 font-light max-w-xl mx-auto animate-fade-in-up" style="animation-delay:0.6s;opacity:0;">
-            Chuteiras Society, Futsal e Campo. Tênis e blusas para quem vive futebol.
+<!-- ====== HERO ====== -->
+<section id="heroSection" aria-label="Destaque principal">
+  <div class="hero-bg">
+    <img src="https://images.unsplash.com/photo-1543326727-cf6c39e8f84c?w=1920&q=80" alt="Chuteiras de futebol" loading="eager">
+  </div>
+  <div class="hero-overlay"></div>
+
+  <div class="hero-content">
+    <p class="hero-eyebrow anim-fade-up-1">Loja especializada em futebol</p>
+    <h1 class="hero-title anim-fade-up-2">
+      Seu jogo<br><em>merece</em><br>o melhor
+    </h1>
+    <p class="hero-subtitle anim-fade-up-3">
+      Chuteiras Society, Futsal e Campo. Tênis e blusas para quem respira futebol.
+    </p>
+    <div class="hero-actions anim-fade-up-4">
+      <button class="btn-primary" onclick="document.getElementById('productsSection').scrollIntoView({behavior:'smooth'})">
+        <span class="iconify" data-icon="mdi:shoe-cleat" style="font-size:16px"></span>
+        Ver catálogo
+      </button>
+      <a href="https://wa.me/5511999999999?text=Olá! Quero saber mais sobre as chuteiras." target="_blank" rel="noopener" class="btn-ghost">
+        <span class="iconify" data-icon="mdi:whatsapp" style="font-size:16px"></span>
+        Falar no WhatsApp
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-scroll" aria-hidden="true">
+    <span class="hero-scroll-label">Scroll</span>
+    <div class="hero-scroll-line"></div>
+  </div>
+</section>
+
+<!-- ====== TRUST BAR ====== -->
+<div id="trustBar" aria-label="Diferenciais">
+  <div class="trust-inner">
+    <div class="trust-item">
+      <span class="iconify" data-icon="mdi:shield-check-outline"></span>
+      Compra segura e garantida
+    </div>
+    <div class="trust-item">
+      <span class="iconify" data-icon="mdi:truck-fast-outline"></span>
+      Entrega para todo o Brasil
+    </div>
+    <div class="trust-item">
+      <span class="iconify" data-icon="mdi:storefront-outline"></span>
+      Loja física e online
+    </div>
+    <div class="trust-item">
+      <span class="iconify" data-icon="mdi:headset"></span>
+      Atendimento especializado
+    </div>
+  </div>
+</div>
+
+<!-- ====== PRODUCTS ====== -->
+<section id="productsSection" aria-label="Catálogo de produtos">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div>
+        <p class="section-eyebrow">Catálogo</p>
+        <h2 id="categoryTitle" class="section-title">Todos os Produtos</h2>
+      </div>
+      <div class="cat-filters" role="group" aria-label="Filtrar por categoria">
+        <button class="cat-tab" data-cat="all"     onclick="filterCategory('all')">Todos</button>
+        <button class="cat-tab" data-cat="society" onclick="filterCategory('society')">Society</button>
+        <button class="cat-tab" data-cat="futsal"  onclick="filterCategory('futsal')">Futsal</button>
+        <button class="cat-tab" data-cat="campo"   onclick="filterCategory('campo')">Campo</button>
+        <button class="cat-tab" data-cat="tenis"   onclick="filterCategory('tenis')">Tênis</button>
+        <button class="cat-tab" data-cat="blusas"  onclick="filterCategory('blusas')">Blusas</button>
+      </div>
+    </div>
+
+    <div id="productsLoading" aria-live="polite">
+      <span class="iconify" data-icon="mdi:loading" style="font-size:28px;animation:spin 0.8s linear infinite;display:inline-block" aria-hidden="true"></span>
+      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+      <p style="margin-top:12px;font-size:14px;color:var(--muted)">Carregando produtos...</p>
+    </div>
+
+    <div id="productsGrid" class="hidden" aria-label="Produtos"></div>
+
+    <div id="emptyState" class="hidden" role="status">
+      <span class="iconify" data-icon="mdi:package-variant-closed-remove" style="font-size:36px;color:var(--muted);margin-bottom:12px"></span>
+      <h3>Nenhum produto encontrado</h3>
+      <p style="color:var(--muted);font-size:14px;margin-top:6px">Não há produtos nesta categoria no momento.</p>
+    </div>
+
+    <div id="errorState" class="hidden" role="alert">
+      <span class="iconify" data-icon="mdi:wifi-off" style="font-size:36px;color:var(--muted);margin-bottom:12px"></span>
+      <h3>Não foi possível carregar</h3>
+      <p id="errorStateMsg" style="color:var(--muted);font-size:14px;margin-top:6px;margin-bottom:20px">Tente novamente em instantes.</p>
+      <button class="btn-primary" onclick="loadProducts()">Tentar novamente</button>
+    </div>
+  </div>
+</section>
+
+<!-- ====== GALLERY ====== -->
+<section id="gallerySection" class="hidden" aria-label="Galeria de imagens">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div>
+        <p class="section-eyebrow">Pitch Futebol</p>
+        <h2 class="section-title">Galeria</h2>
+      </div>
+    </div>
+    <div id="galleryGrid" class="gallery-grid"></div>
+  </div>
+</section>
+
+<!-- ====== LIGHTBOX ====== -->
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="Visualização de imagem">
+  <button id="lightboxClose" onclick="closeLightbox()" aria-label="Fechar">
+    <span class="iconify" data-icon="mdi:close" style="font-size:18px"></span>
+  </button>
+  <img id="lightboxImage" src="" alt="">
+</div>
+
+<!-- ====== CART ====== -->
+<div id="cartOverlay" class="cart-overlay" role="dialog" aria-modal="true" aria-label="Carrinho de compras">
+  <div class="cart-panel">
+    <div class="cart-panel-head">
+      <div>
+        <p>Carrinho</p>
+        <h3 id="cartItemsCount">0 itens</h3>
+      </div>
+      <button class="cart-close-btn" onclick="toggleCart()" aria-label="Fechar carrinho">
+        <span class="iconify" data-icon="mdi:close" style="font-size:16px"></span>
+      </button>
+    </div>
+    <div id="cartItems"></div>
+    <div id="cartFooter" class="hidden" style="margin-top:auto;padding-top:20px;border-top:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <span style="font-size:13px;color:var(--muted)">Total</span>
+        <strong id="cartTotal" style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--amber-dk)">R$ 0,00</strong>
+      </div>
+      <button onclick="openSiteCheckout()" class="btn-primary" style="width:100%;justify-content:center">
+        Finalizar compra
+      </button>
+      <div style="display:flex;justify-content:space-between;margin-top:16px">
+        <a id="wppCartLink" href="#" target="_blank" rel="noopener" style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='var(--amber)'" onmouseout="this.style.color='var(--muted)'">
+          <span class="iconify" data-icon="mdi:whatsapp"></span> WhatsApp
+        </a>
+        <a id="igCartLink" href="#" target="_blank" rel="noopener" style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='var(--amber)'" onmouseout="this.style.color='var(--muted)'">
+          <span class="iconify" data-icon="mdi:instagram"></span> Instagram
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== PRODUCT MODAL ====== -->
+<div id="productModal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Detalhes do produto">
+  <div class="modal-content">
+    <div class="modal-grid">
+      <div class="modal-img">
+        <img id="modalImage" src="" alt="Produto">
+      </div>
+      <div class="modal-body">
+        <button class="modal-close-btn" onclick="closeProductModal()" aria-label="Fechar">
+          <span class="iconify" data-icon="mdi:close" style="font-size:15px"></span>
+        </button>
+        <div>
+          <p class="modal-brand-label">Marca · <span id="modalBrand"></span></p>
+          <h3 id="modalName" class="modal-name"></h3>
+        </div>
+        <div class="modal-prices">
+          <span id="modalPrice" class="modal-price"></span>
+          <span id="modalOldPrice" class="modal-old-price hidden"></span>
+        </div>
+        <p id="modalDesc" class="modal-desc"></p>
+        <div>
+          <p class="modal-sizes-label">Tamanhos</p>
+          <div id="modalSizes" class="modal-sizes-grid"></div>
+        </div>
+        <div class="qty-row">
+          <button class="qty-btn" onclick="changeModalQty(-1)" aria-label="Diminuir quantidade">−</button>
+          <span id="modalQty" class="qty-display" aria-live="polite">1</span>
+          <button class="qty-btn" onclick="changeModalQty(1)" aria-label="Aumentar quantidade">+</button>
+        </div>
+        <button onclick="addModalToCart()" class="btn-primary" style="justify-content:center">
+          <span class="iconify" data-icon="mdi:cart-plus" style="font-size:16px"></span>
+          Adicionar ao carrinho
+        </button>
+        <div class="modal-links">
+          <a id="modalWppLink" href="#" target="_blank" rel="noopener" class="modal-link">
+            <span class="iconify" data-icon="mdi:whatsapp"></span> WhatsApp
+          </a>
+          <a id="modalIgLink" href="#" target="_blank" rel="noopener" class="modal-link">
+            <span class="iconify" data-icon="mdi:instagram"></span> Instagram
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== CHECKOUT MODAL ====== -->
+<div id="checkoutModal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Finalizar compra" style="z-index:70">
+  <div class="modal-content" style="max-width:640px">
+    <div class="checkout-body">
+      <!-- Steps -->
+      <div class="checkout-steps-row" aria-label="Etapas do checkout">
+        <div id="step1Circle" class="step-circle current" aria-label="Etapa 1: Dados">1</div>
+        <div class="step-line" id="stepLine1"></div>
+        <div id="step2Circle" class="step-circle pending" aria-label="Etapa 2: Endereço">2</div>
+        <div class="step-line" id="stepLine2"></div>
+        <div id="step3Circle" class="step-circle pending" aria-label="Etapa 3: Pagamento">3</div>
+      </div>
+
+      <!-- Success -->
+      <div id="checkoutSuccess" class="checkout-success hidden">
+        <span class="iconify" data-icon="mdi:check-circle" style="font-size:48px;color:var(--green)"></span>
+        <h3>Pedido confirmado!</h3>
+        <p>Seu pedido foi recebido e está sendo processado. Em breve entraremos em contato.</p>
+        <button onclick="closeCheckout()" class="btn-primary" style="margin-top:20px;justify-content:center">Fechar</button>
+      </div>
+
+      <!-- Step 1: Customer Data -->
+      <div id="checkoutStep1">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px">
+          <div>
+            <h3 class="checkout-section-title">Seus dados</h3>
+            <p class="checkout-section-sub">Nome, e-mail e telefone para o pedido.</p>
+          </div>
+          <button onclick="closeCheckout()" class="modal-close-btn" aria-label="Fechar">
+            <span class="iconify" data-icon="mdi:close" style="font-size:15px"></span>
+          </button>
+        </div>
+        <div class="checkout-form-grid">
+          <input id="chkName"     type="text"     placeholder="Nome completo"           class="field-input" autocomplete="name">
+          <input id="chkEmail"    type="email"    placeholder="E-mail"                  class="field-input" autocomplete="email">
+          <input id="chkPhone"    type="tel"      placeholder="(00) 00000-0000"          class="field-input" autocomplete="tel" inputmode="numeric" maxlength="15">
+          <input id="chkCpf"     type="text"     placeholder="000.000.000-00"           class="field-input" inputmode="numeric" maxlength="14">
+          <input id="chkPassword" type="password" placeholder="Senha (mín. 8 caracteres)" class="field-input field-full" autocomplete="new-password">
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:10px;line-height:1.6">
+          Usamos seu e-mail e senha para criar ou acessar sua conta Pitch Futebol, permitindo acompanhar este pedido.
         </p>
-        <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style="animation-delay:0.8s;opacity:0;">
-            <button onclick="document.getElementById('productsSection').scrollIntoView({behavior:'smooth'})" class="shine-sweep bg-brand-700 text-white px-8 py-4 rounded-full text-sm font-bold uppercase tracking-wide hover:scale-105 transition-transform duration-150">
-                Ver Chuteiras
-            </button>
-            <a href="https://wa.me/5511999999999?text=Olá! Quero tirar algumas dúvidas sobre as chuteiras." target="_blank" class="bg-white/10 backdrop-blur-sm border border-white/20 text-white px-8 py-4 rounded-full text-sm font-bold uppercase tracking-wide hover:bg-white/20 transition-all duration-300 flex items-center justify-center gap-2">
-                <span class="iconify text-lg" data-icon="mdi:whatsapp"></span> Tirar Dúvidas
-            </a>
+        <div id="checkoutAuthError" class="error-box hidden"></div>
+        <div class="checkout-nav">
+          <button onclick="closeCheckout()" class="btn-secondary">Cancelar</button>
+          <button id="step1NextBtn" onclick="goToStep(2)" class="btn-primary">Próximo →</button>
         </div>
+      </div>
+
+      <!-- Step 2: Address -->
+      <div id="checkoutStep2" class="hidden">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px">
+          <div>
+            <h3 class="checkout-section-title">Endereço de entrega</h3>
+            <p class="checkout-section-sub">Informe onde deseja receber seu pedido.</p>
+          </div>
+          <button onclick="closeCheckout()" class="modal-close-btn" aria-label="Fechar">
+            <span class="iconify" data-icon="mdi:close" style="font-size:15px"></span>
+          </button>
+        </div>
+        <div class="checkout-form-grid">
+          <input id="chkCep"    type="text" placeholder="CEP (00000-000)"     class="field-input" inputmode="numeric" maxlength="9" autocomplete="postal-code">
+          <input id="chkStreet" type="text" placeholder="Rua / Avenida"       class="field-input" autocomplete="street-address">
+          <input id="chkNum"    type="text" placeholder="Número"              class="field-input">
+          <input id="chkComp"   type="text" placeholder="Complemento"        class="field-input" autocomplete="address-line2">
+          <input id="chkBairro" type="text" placeholder="Bairro"             class="field-input">
+          <input id="chkCity"   type="text" placeholder="Cidade"             class="field-input" autocomplete="address-level2">
+          <input id="chkState"  type="text" placeholder="UF (ex: SP)"        class="field-input" maxlength="2" autocomplete="address-level1">
+        </div>
+        <div class="checkout-nav spaced">
+          <button onclick="goToStep(1)" class="btn-secondary">← Voltar</button>
+          <button onclick="goToStep(3)" class="btn-primary">Próximo →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Payment -->
+      <div id="checkoutStep3" class="hidden">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px">
+          <div>
+            <h3 class="checkout-section-title">Forma de pagamento</h3>
+            <p class="checkout-section-sub">Escolha como prefere pagar.</p>
+          </div>
+          <button onclick="closeCheckout()" class="modal-close-btn" aria-label="Fechar">
+            <span class="iconify" data-icon="mdi:close" style="font-size:15px"></span>
+          </button>
+        </div>
+        <div class="payment-options">
+          <label class="payment-option">
+            <input type="radio" name="payment" value="pix" checked>
+            <div class="pay-name">PIX</div>
+            <div class="pay-desc">5% de desconto</div>
+          </label>
+          <label class="payment-option">
+            <input type="radio" name="payment" value="boleto">
+            <div class="pay-name">Boleto</div>
+            <div class="pay-desc">À vista</div>
+          </label>
+          <label class="payment-option">
+            <input type="radio" name="payment" value="cartao">
+            <div class="pay-name">Cartão</div>
+            <div class="pay-desc">Até 3x s/ juros</div>
+          </label>
+        </div>
+        <div class="checkout-summary">
+          <p class="summary-label">Resumo do pedido</p>
+          <div id="checkoutSummaryItems"></div>
+          <div class="summary-row total">
+            <span>Total</span>
+            <span id="checkoutTotal">R$ 0,00</span>
+          </div>
+        </div>
+        <div id="checkoutError" class="error-box hidden"></div>
+        <div class="checkout-nav spaced">
+          <button onclick="goToStep(2)" class="btn-secondary">← Voltar</button>
+          <button id="finishOrderBtn" onclick="finishOrder()" class="btn-primary">
+            <span class="iconify" data-icon="mdi:lock-outline" style="font-size:15px"></span>
+            Finalizar pedido
+          </button>
+        </div>
+      </div>
     </div>
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/60">
-        <span class="text-[10px] uppercase tracking-widest">Scroll</span>
-        <div class="w-px h-8 bg-white/30 relative overflow-hidden">
-            <div class="w-full h-1/2 bg-white/80 absolute top-0" style="animation:scrollDown 1.5s ease-in-out infinite;"></div>
-        </div>
-    </div>
-    <style>@keyframes scrollDown { 0%{top:-50%} 100%{top:100%} }</style>
-</section>
-
-<!-- ============ PRODUCTS SECTION ============ -->
-<section id="productsSection" class="bg-cream py-20">
-    <div class="max-w-7xl mx-auto px-6">
-        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
-            <div id="categoryTitle" class="space-y-3">
-                <p class="uppercase text-sm tracking-[0.3em] text-stone-500">Catálogo</p>
-                <h2 class="text-3xl md:text-4xl font-semibold">Todos os Produtos</h2>
-            </div>
-            <div class="flex flex-wrap gap-3">
-                <button onclick="filterCategory('all')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="all">Todos</button>
-                <button onclick="filterCategory('society')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="society">Society</button>
-                <button onclick="filterCategory('futsal')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="futsal">Futsal</button>
-                <button onclick="filterCategory('campo')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="campo">Campo</button>
-                <button onclick="filterCategory('tenis')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="tenis">Tênis</button>
-                <button onclick="filterCategory('blusas')" class="cat-tab text-sm font-medium text-stone-600 hover:text-stone-900" data-cat="blusas">Blusas</button>
-            </div>
-        </div>
-
-        <div id="productsLoading" class="py-20 text-center text-stone-500">
-            <span class="iconify text-3xl animate-spin" data-icon="mdi:loading"></span>
-            <p class="mt-3 text-sm">Carregando produtos...</p>
-        </div>
-
-        <div id="productsGrid" class="hidden grid gap-6 sm:grid-cols-2 xl:grid-cols-3"></div>
-
-        <div id="emptyState" class="hidden py-20 text-center rounded-3xl bg-white shadow-lg">
-            <h3 class="text-xl font-semibold mb-3">Nada encontrado</h3>
-            <p class="text-stone-500">Não foi possível encontrar produtos para a categoria selecionada.</p>
-        </div>
-
-        <div id="errorState" class="hidden py-20 text-center rounded-3xl bg-white shadow-lg">
-            <span class="iconify text-3xl text-red-500" data-icon="mdi:alert-circle-outline"></span>
-            <h3 class="mt-3 text-xl font-semibold mb-2">Não foi possível carregar</h3>
-            <p id="errorStateMsg" class="text-stone-500">Tente novamente em instantes.</p>
-            <button onclick="loadProducts()" class="mt-5 rounded-2xl bg-brand-700 text-white px-6 py-3">Tentar de novo</button>
-        </div>
-    </div>
-</section>
-
-<!-- ============ GALLERY SECTION ============ -->
-<section id="gallerySection" class="hidden bg-cream py-20">
-    <div class="max-w-7xl mx-auto px-6">
-        <div class="mb-10 space-y-3">
-            <p class="uppercase text-sm tracking-[0.3em] text-stone-500">Pitch Futebol</p>
-            <h2 class="text-3xl md:text-4xl font-semibold">Galeria</h2>
-        </div>
-        <div id="galleryGrid" class="gallery-grid"></div>
-    </div>
-</section>
-
-<!-- ============ LIGHTBOX ============ -->
-<div id="lightbox" class="pointer-events-none">
-    <button id="lightboxClose" onclick="closeLightbox()" class="p-2">
-        <span class="iconify text-3xl" data-icon="mdi:close"></span>
-    </button>
-    <img id="lightboxImage" src="" alt="">
+  </div>
 </div>
 
-<!-- ============ CART OVERLAY ============ -->
-<div id="cartOverlay" class="cart-overlay fixed inset-0 z-50 bg-black/40 flex justify-end opacity-0 pointer-events-none">
-    <div class="cart-panel w-full max-w-md h-full bg-white p-6 shadow-2xl overflow-y-auto">
-        <div class="flex items-center justify-between mb-6">
-            <div>
-                <p class="text-sm text-stone-500">Seu carrinho</p>
-                <h3 class="text-2xl font-semibold">Itens selecionados</h3>
-            </div>
-            <button onclick="toggleCart()" class="text-stone-500 hover:text-stone-900"><span class="iconify text-2xl" data-icon="mdi:close"></span></button>
-        </div>
-        <div class="mb-4 text-sm text-stone-500" id="cartItemsCount">(0 itens)</div>
-        <div id="cartItems" class="space-y-4 min-h-[220px]"></div>
-        <div id="cartFooter" class="mt-6 hidden">
-            <div class="flex items-center justify-between mb-4">
-                <span class="text-sm text-stone-500">Total</span>
-                <strong class="text-xl text-brand-700" id="cartTotal">R$ 0,00</strong>
-            </div>
-            <button onclick="openSiteCheckout()" class="w-full bg-brand-700 text-white py-3 rounded-2xl font-semibold hover:bg-brand-600">Finalizar compra</button>
-            <div class="mt-4 flex items-center justify-between text-sm text-stone-500">
-                <a id="wppCartLink" href="#" target="_blank" class="hover:text-brand-700">WhatsApp</a>
-                <a id="igCartLink" href="#" target="_blank" class="hover:text-brand-700">Instagram</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ============ PRODUCT MODAL ============ -->
-<div id="productModal" class="modal-overlay fixed inset-0 z-50 bg-black/40 opacity-0 pointer-events-none flex items-center justify-center p-6">
-    <div class="modal-content w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden transform transition-all duration-300">
-        <div class="grid gap-6 md:grid-cols-[1.2fr_0.8fr]">
-            <div class="relative overflow-hidden">
-                <img id="modalImage" class="w-full h-full object-cover" src="https://picsum.photos/seed/placeholder/800/800" alt="Produto">
-            </div>
-            <div class="p-6 flex flex-col gap-4">
-                <button onclick="closeProductModal()" class="self-end text-stone-400 hover:text-stone-700"><span class="iconify text-2xl" data-icon="mdi:close"></span></button>
-                <p class="text-xs uppercase tracking-[0.3em] text-stone-400">Marca <span id="modalBrand"></span></p>
-                <h3 id="modalName" class="text-3xl font-semibold"></h3>
-                <div class="flex items-center gap-3">
-                    <span id="modalPrice" class="text-3xl font-bold text-brand-700"></span>
-                    <span id="modalOldPrice" class="text-sm text-stone-400 line-through"></span>
-                </div>
-                <p id="modalDesc" class="text-stone-600 leading-7"></p>
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm uppercase tracking-[0.2em] text-stone-500">Tamanhos</span>
-                        <span id="modalCategory" class="text-sm text-stone-400 uppercase"></span>
-                    </div>
-                    <div id="modalSizes" class="grid grid-cols-5 gap-3"></div>
-                </div>
-                <div class="flex items-center gap-3">
-                    <button onclick="changeModalQty(-1)" class="w-12 h-12 rounded-2xl border border-stone-200 bg-white text-xl">−</button>
-                    <span id="modalQty" class="text-xl font-semibold">1</span>
-                    <button onclick="changeModalQty(1)" class="w-12 h-12 rounded-2xl border border-stone-200 bg-white text-xl">+</button>
-                </div>
-                <button onclick="addModalToCart()" class="mt-4 w-full bg-brand-700 text-white py-3 rounded-2xl font-semibold hover:bg-brand-600">Adicionar ao carrinho</button>
-                <div class="flex items-center gap-3 pt-4 border-t border-stone-100 text-sm text-stone-500">
-                    <a id="modalWppLink" href="#" target="_blank" class="hover:text-brand-700 flex items-center gap-2"><span class="iconify" data-icon="mdi:whatsapp"></span> WhatsApp</a>
-                    <a id="modalIgLink" href="#" target="_blank" class="hover:text-brand-700 flex items-center gap-2"><span class="iconify" data-icon="mdi:instagram"></span> Instagram</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ============ CHECKOUT MODAL ============ -->
-<div id="checkoutModal" class="modal-overlay fixed inset-0 z-[70] bg-black/40 opacity-0 pointer-events-none flex items-center justify-center p-6">
-    <div class="modal-content w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden p-6">
-        <div class="flex flex-col gap-6">
-            <div class="flex items-center gap-3 justify-center">
-                <div id="step1Circle" class="step-circle current">1</div>
-                <div class="h-0.5 flex-1 bg-stone-200" id="stepLine1" style="width:0%"></div>
-                <div id="step2Circle" class="step-circle pending">2</div>
-                <div class="h-0.5 flex-1 bg-stone-200" id="stepLine2" style="width:0%"></div>
-                <div id="step3Circle" class="step-circle pending">3</div>
-            </div>
-            <div id="checkoutSuccess" class="hidden p-8 text-center rounded-3xl bg-emerald-50 border border-emerald-100">
-                <span class="iconify text-5xl text-emerald-600" data-icon="mdi:check-circle"></span>
-                <h3 class="mt-5 text-2xl font-semibold">Compra finalizada!</h3>
-                <p class="mt-2 text-stone-600">Seu pedido foi recebido e está sendo processado.</p>
-                <button onclick="closeCheckout()" class="mt-6 bg-brand-700 text-white px-6 py-3 rounded-2xl">Fechar</button>
-            </div>
-            <div id="checkoutStep1" class="space-y-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-xl font-semibold">Dados do cliente</h3>
-                        <p class="text-sm text-stone-500">Informe seu nome, e-mail e telefone.</p>
-                    </div>
-                    <button onclick="closeCheckout()" class="text-stone-500 hover:text-stone-900"><span class="iconify text-2xl" data-icon="mdi:close"></span></button>
-                </div>
-                <div class="grid gap-4 sm:grid-cols-2">
-                    <input id="chkName" type="text" placeholder="Nome completo" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700">
-                    <input id="chkEmail" type="email" placeholder="E-mail" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700">
-                    <input id="chkPhone" type="tel" inputmode="numeric" maxlength="15" placeholder="(00) 00000-0000" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700">
-                    <input id="chkCpf" type="text" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700">
-                    <input id="chkPassword" type="password" placeholder="Senha (mín. 8 caracteres)" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700 sm:col-span-2">
-                </div>
-                <p class="text-xs text-stone-500">
-                    Usamos seu e-mail e senha para criar ou acessar sua conta Pitch Futebol —
-                    é assim que você pode acompanhar este pedido depois.
-                </p>
-                <div id="checkoutAuthError" class="hidden rounded-2xl bg-red-50 border border-red-100 p-3 text-sm text-red-700"></div>
-                <div class="flex justify-end gap-3">
-                    <button onclick="closeCheckout()" class="rounded-2xl border border-stone-200 px-5 py-3 hover:bg-stone-50">Cancelar</button>
-                    <button id="step1NextBtn" onclick="goToStep(2)" class="rounded-2xl bg-brand-700 text-white px-5 py-3 hover:bg-brand-600">Próximo</button>
-                </div>
-            </div>
-            <div id="checkoutStep2" class="hidden space-y-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-xl font-semibold">Endereço</h3>
-                        <p class="text-sm text-stone-500">Digite os dados para entrega.</p>
-                    </div>
-                    <button onclick="closeCheckout()" class="text-stone-500 hover:text-stone-900"><span class="iconify text-2xl" data-icon="mdi:close"></span></button>
-                </div>
-                <div class="grid gap-4 sm:grid-cols-2">
-                    <input id="chkCep" type="text" inputmode="numeric" maxlength="9" placeholder="00000-000" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700">
-                    <input id="chkStreet" type="text" placeholder="Rua" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700">
-                    <input id="chkNum" type="text" placeholder="Número" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700">
-                    <input id="chkComp" type="text" placeholder="Complemento" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700">
-                    <input id="chkBairro" type="text" placeholder="Bairro" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700">
-                    <input id="chkCity" type="text" placeholder="Cidade" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700">
-                    <input id="chkState" type="text" maxlength="2" placeholder="UF (ex: SP)" class="rounded-2xl border border-stone-200 p-4 outline-none focus:border-brand-700 uppercase">
-                </div>
-                <div class="flex justify-between gap-3">
-                    <button onclick="goToStep(1)" class="rounded-2xl border border-stone-200 px-5 py-3 hover:bg-stone-50">Voltar</button>
-                    <button onclick="goToStep(3)" class="rounded-2xl bg-brand-700 text-white px-5 py-3 hover:bg-brand-600">Próximo</button>
-                </div>
-            </div>
-            <div id="checkoutStep3" class="hidden space-y-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-xl font-semibold">Pagamento</h3>
-                        <p class="text-sm text-stone-500">Escolha como deseja pagar.</p>
-                    </div>
-                    <button onclick="closeCheckout()" class="text-stone-500 hover:text-stone-900"><span class="iconify text-2xl" data-icon="mdi:close"></span></button>
-                </div>
-                <div class="grid gap-4 sm:grid-cols-3">
-                    <label class="rounded-2xl border border-stone-200 p-5 cursor-pointer hover:border-brand-700">
-                        <input type="radio" name="payment" value="pix" class="hidden" checked>
-                        <div class="font-semibold">PIX</div>
-                        <p class="text-sm text-stone-500">5% de desconto</p>
-                    </label>
-                    <label class="rounded-2xl border border-stone-200 p-5 cursor-pointer hover:border-brand-700">
-                        <input type="radio" name="payment" value="boleto" class="hidden">
-                        <div class="font-semibold">Boleto</div>
-                        <p class="text-sm text-stone-500">Pagamento à vista</p>
-                    </label>
-                    <label class="rounded-2xl border border-stone-200 p-5 cursor-pointer hover:border-brand-700">
-                        <input type="radio" name="payment" value="cartao" class="hidden">
-                        <div class="font-semibold">Cartão</div>
-                        <p class="text-sm text-stone-500">Parcelado em até 3x</p>
-                    </label>
-                </div>
-                <div class="rounded-3xl border border-stone-200 p-5 bg-stone-50">
-                    <div class="mb-4 text-sm text-stone-500">Resumo do pedido</div>
-                    <div id="checkoutSummaryItems" class="space-y-3"></div>
-                    <div class="mt-4 flex items-center justify-between text-sm text-stone-500">
-                        <span>Total</span>
-                        <span id="checkoutTotal">R$ 0,00</span>
-                    </div>
-                </div>
-                <div id="checkoutError" class="hidden rounded-2xl bg-red-50 border border-red-100 p-3 text-sm text-red-700"></div>
-                <div class="flex justify-between gap-3">
-                    <button onclick="goToStep(2)" class="rounded-2xl border border-stone-200 px-5 py-3 hover:bg-stone-50">Voltar</button>
-                    <button id="finishOrderBtn" onclick="finishOrder()" class="rounded-2xl bg-brand-700 text-white px-5 py-3 hover:bg-brand-600">Finalizar pedido</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<footer class="bg-white py-10">
-    <div class="max-w-7xl mx-auto px-6 text-center text-sm text-stone-500">
-        <p>Pitch Futebol — Loja de chuteiras, tênis e acessórios para futebol.</p>
-        <p class="mt-2">Desenvolvido para demonstração de front-end e API simples.</p>
-    </div>
+<!-- ====== FOOTER ====== -->
+<footer>
+  <p style="margin-bottom:6px">
+    <strong style="color:rgba(255,255,255,0.75);font-family:var(--font-display);font-size:15px;font-weight:700;letter-spacing:-0.3px">PITCH</strong>
+    <span style="margin:0 8px;opacity:0.3">·</span>
+    Chuteiras Society, Futsal e Campo · Tênis e Blusas
+  </p>
+  <p>© 2026 Pitch Futebol. Todos os direitos reservados.</p>
 </footer>
 
 <script src="./assets/app.js" defer></script>
+<script>
+  // Navbar scroll state
+  window.addEventListener('scroll', () => {
+    const nav = document.getElementById('navbar');
+    if (window.scrollY > 40) nav.classList.add('scrolled');
+    else nav.classList.remove('scrolled');
+  }, { passive: true });
+
+  // Scroll reveal
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('active'); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+</script>
 </body>
 </html>
