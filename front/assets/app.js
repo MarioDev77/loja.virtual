@@ -351,7 +351,7 @@ function filterCategory(cat) {
     btn.classList.toggle('active', btn.dataset.cat === cat);
   });
 
-  const titleEl = document.getElementById('categoryTitle').querySelector('h2');
+  const titleEl = document.getElementById('categoryTitle');
   const labels = { all: 'Todos os Produtos', society: 'Chuteiras Society', futsal: 'Chuteiras Futsal', campo: 'Chuteiras Campo', tenis: 'Tênis', blusas: 'Blusas' };
   titleEl.textContent = labels[cat] || 'Todos os Produtos';
 
