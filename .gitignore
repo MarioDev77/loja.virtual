@@ -33,4 +33,4 @@ Thumbs.db
 # ─── Build / cache ────────────────────────────────────────────────────────────
 dist/
 build/
-.cache/
+.cache/server/seed.js
