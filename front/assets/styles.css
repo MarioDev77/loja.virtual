@@ -986,3 +986,256 @@ footer a:hover { color: var(--amber-lt); }
 
 /* ─── Summary row in cart ───────────────────────────────────── */
 .summary-row-item { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; color: var(--muted); }
+
+/* ==========================================================================
+   NOVOS ESTILOS — Etapa 2 / Etapa 3
+   skeleton loading · busca · ordenação · wishlist · paginação · avaliações
+   ========================================================================== */
+
+/* ─── Skeleton loading ──────────────────────────────────────────────────── */
+.product-card.skeleton {
+  pointer-events: none;
+  cursor: default;
+  animation: none;
+}
+.product-card.skeleton .body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; }
+.skeleton-img {
+  width: 100%;
+  aspect-ratio: 1/1;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: linear-gradient(90deg, var(--border) 25%, #f5f0ea 50%, var(--border) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+.skeleton-line {
+  height: 14px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--border) 25%, #f5f0ea 50%, var(--border) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+.skeleton-line.short { width: 45%; height: 11px; }
+.skeleton-line.price { width: 60%; height: 18px; margin-top: 4px; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* ─── Barra de busca ────────────────────────────────────────────────────── */
+.search-bar {
+  position: relative;
+  max-width: 380px;
+  width: 100%;
+}
+.search-bar input {
+  width: 100%;
+  padding: 10px 16px 10px 40px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.search-bar input:focus {
+  border-color: var(--amber-dk);
+  box-shadow: 0 0 0 3px rgba(161,118,56,0.12);
+}
+.search-bar input::placeholder { color: var(--muted); }
+.search-bar .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+  font-size: 16px;
+  display: flex;
+}
+
+/* ─── Select de ordenação ───────────────────────────────────────────────── */
+.sort-select {
+  padding: 9px 32px 9px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238c7a5e'/%3E%3C/svg%3E") no-repeat right 12px center;
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--text);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+  white-space: nowrap;
+}
+.sort-select:focus { border-color: var(--amber-dk); }
+
+/* ─── Controles do catálogo (busca + sort numa linha) ───────────────────── */
+.catalog-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+/* ─── Botão "Carregar mais" ─────────────────────────────────────────────── */
+#loadMoreBtn {
+  display: block;
+  margin: 36px auto 0;
+  padding: 13px 40px;
+  background: transparent;
+  border: 2px solid var(--amber-dk);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--amber-dk);
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
+}
+#loadMoreBtn:hover  { background: var(--amber-dk); color: #fff; transform: translateY(-1px); }
+#loadMoreBtn:active { transform: translateY(0); }
+#loadMoreBtn:disabled { opacity: 0.5; cursor: wait; }
+#loadMoreBtn.hidden { display: none; }
+
+/* ─── Wishlist (favoritos) ──────────────────────────────────────────────── */
+/* Botão de coração no card */
+.wish-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  background: rgba(255,255,255,0.88);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s, transform 0.15s;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  line-height: 1;
+}
+.wish-btn:hover  { color: #e53e3e; background: #fff; transform: scale(1.12); }
+.wish-btn.wished { color: #e53e3e; }
+
+/* Badge de favoritos no navbar */
+#wishCount {
+  position: absolute;
+  top: -5px;
+  right: -7px;
+  background: var(--amber-dk);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 999px;
+  min-width: 17px;
+  height: 17px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
+}
+#wishCount.show { display: flex; }
+
+/* Botão de wishlist no modal */
+#modalWishBtn {
+  padding: 8px 18px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+#modalWishBtn:hover  { color: #e53e3e; border-color: #e53e3e; }
+#modalWishBtn.wished { color: #e53e3e; border-color: #e53e3e; }
+
+/* ─── Avaliações de clientes ────────────────────────────────────────────── */
+#modalReviews {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+.reviews-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.reviews-avg {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+}
+.reviews-count { font-size: 13px; color: var(--muted); }
+.reviews-loading, .reviews-empty { font-size: 13px; color: var(--muted); padding: 8px 0; }
+
+.review-item {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.review-item:last-child { border-bottom: none; }
+.review-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.review-name { font-weight: 600; font-size: 14px; color: var(--text); }
+.review-date { font-size: 12px; color: var(--muted); }
+.review-comment { font-size: 13.5px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+
+/* Estrelas */
+.stars { display: flex; gap: 2px; }
+.star { font-size: 15px; color: var(--border); line-height: 1; }
+.star.filled { color: #f6ad55; }
+
+/* ─── Mensagem de erro personalizada no emptyState ───────────────────────── */
+#errorStateMsg { font-size: 14px; color: var(--muted); margin-top: 6px; }
+
+/* ─── Responsividade dos controles ─────────────────────────────────────── */
+@media (max-width: 600px) {
+  .catalog-controls { flex-direction: column; align-items: stretch; }
+  .search-bar { max-width: 100%; }
+  .sort-select { width: 100%; }
+  #loadMoreBtn { width: 100%; }
+}
+
+/* ─── Painel de favoritos (wishlist) ────────────────────────────────────── */
+.wish-empty { text-align: center; padding: 40px 0; color: var(--muted); }
+.wish-empty p { font-size: 14px; margin-bottom: 6px; }
+.wish-empty-hint { font-size: 12px !important; opacity: 0.7; }
+
+.btn-wish-add {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 7px 14px;
+  background: var(--amber-dk);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-wish-add:hover { opacity: 0.88; }
+
+/* ─── Classe cart-line-info (corrige div sem classe no renderCartPanel) ─── */
+.cart-line-info { display: flex; flex-direction: column; min-width: 0; }
+.cart-line-price-col { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }

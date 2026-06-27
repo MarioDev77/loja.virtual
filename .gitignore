@@ -1,36 +1,3 @@
-# ─── Secrets — NUNCA versionar ───────────────────────────────────────────────
 .env
-.env.local
-.env.*.local
-server/.env
-server/.env.local
-
-# ─── Dependências ────────────────────────────────────────────────────────────
 node_modules/
-server/node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# ─── Uploads de usuário (imagens de produtos enviadas em runtime) ───────────
-server/uploads/
-uploads/
-# server/seed-images/ é versionado de propósito — imagens fixas do catálogo inicial
-
-# ─── Logs ─────────────────────────────────────────────────────────────────────
-*.log
-logs/
-
-# ─── Sistema operacional ──────────────────────────────────────────────────────
-.DS_Store
-Thumbs.db
-
-# ─── Editor ───────────────────────────────────────────────────────────────────
-.vscode/
-.idea/
-*.swp
-
-# ─── Build / cache ────────────────────────────────────────────────────────────
-dist/
-build/
-.cache/server/seed.js
+seed.jsserver/.env

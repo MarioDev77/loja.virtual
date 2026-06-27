@@ -5,7 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pitch Futebol — Chuteiras & Moda</title>
   <meta name="description" content="Loja especializada em chuteiras Society, Futsal e Campo. Tênis e blusas para quem vive futebol.">
-  <meta name="robots" content="noindex">
+  <meta name="robots" content="index, follow">
+
+  <!-- SEO / Open Graph -->
+  <meta property="og:type"        content="website">
+  <meta property="og:title"       content="Pitch Futebol — Chuteiras & Moda">
+  <meta property="og:description" content="Chuteiras Society, Futsal e Campo. Tênis e blusas para quem respira futebol.">
+  <meta property="og:image"       content="/assets/img/hero.webp">
+  <meta property="og:url"         content="https://pitchfutebol.com.br/">
+  <meta name="twitter:card"       content="summary_large_image">
+  <link rel="canonical"           href="https://pitchfutebol.com.br/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -31,10 +40,14 @@
       <button class="nav-link cat-tab" data-cat="campo"   onclick="filterCategory('campo')"   role="menuitem">Campo</button>
       <button class="nav-link cat-tab" data-cat="tenis"   onclick="filterCategory('tenis')"   role="menuitem">Tênis</button>
       <button class="nav-link cat-tab" data-cat="blusas"  onclick="filterCategory('blusas')"  role="menuitem">Blusas</button>
-      <button class="nav-link" onclick="showGallery()" role="menuitem">Galeria</button>
+      <!-- Galeria temporariamente desativada até imagens reais estarem disponíveis -->
     </div>
 
     <div class="nav-actions">
+      <button class="nav-cart-btn" onclick="showWishPanel()" aria-label="Favoritos" style="position:relative" title="Favoritos">
+        <span class="iconify" data-icon="mdi:heart-outline" style="font-size:18px"></span>
+        <span id="wishCount" aria-label="favoritos salvos"></span>
+      </button>
       <button class="nav-cart-btn" onclick="toggleCart()" aria-label="Abrir carrinho">
         <span class="iconify" data-icon="mdi:shopping-bag-outline" style="font-size:18px"></span>
         <span id="cartCount" aria-label="itens no carrinho">0</span>
@@ -61,7 +74,7 @@
     <button class="mobile-link cat-tab" data-cat="campo"   onclick="filterCategory('campo');   toggleMobileMenu()">Campo</button>
     <button class="mobile-link cat-tab" data-cat="tenis"   onclick="filterCategory('tenis');   toggleMobileMenu()">Tênis</button>
     <button class="mobile-link cat-tab" data-cat="blusas"  onclick="filterCategory('blusas');  toggleMobileMenu()">Blusas</button>
-    <button class="mobile-link" onclick="showGallery(); toggleMobileMenu()">Galeria</button>
+    <!-- Galeria temporariamente desativada até imagens reais estarem disponíveis -->
     <button class="mobile-link accent" onclick="showSection('home'); toggleMobileMenu()">← Ver todos os produtos</button>
   </div>
 </div>
@@ -139,18 +152,34 @@
       </div>
     </div>
 
-    <div id="productsLoading" aria-live="polite">
-      <span class="iconify" data-icon="mdi:loading" style="font-size:28px;animation:spin 0.8s linear infinite;display:inline-block" aria-hidden="true"></span>
-      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
-      <p style="margin-top:12px;font-size:14px;color:var(--muted)">Carregando produtos...</p>
+    <!-- Busca + ordenação -->
+    <div class="catalog-controls">
+      <div class="search-bar" role="search">
+        <span class="search-icon iconify" data-icon="mdi:magnify" aria-hidden="true"></span>
+        <input id="searchInput" type="search" placeholder="Buscar produto…"
+               aria-label="Buscar produto" autocomplete="off" spellcheck="false">
+      </div>
+      <select id="sortSelect" class="sort-select" aria-label="Ordenar por">
+        <option value="newest">Mais recentes</option>
+        <option value="price_asc">Menor preço</option>
+        <option value="price_desc">Maior preço</option>
+        <option value="name_asc">A–Z</option>
+      </select>
     </div>
 
+    <div id="productsLoading" aria-live="polite" class="hidden"></div>
+
     <div id="productsGrid" class="hidden" aria-label="Produtos"></div>
+
+    <!-- Botão carregar mais -->
+    <button id="loadMoreBtn" class="hidden" onclick="loadMore()" aria-label="Carregar mais produtos">
+      Carregar mais
+    </button>
 
     <div id="emptyState" class="hidden" role="status">
       <span class="iconify" data-icon="mdi:package-variant-closed-remove" style="font-size:36px;color:var(--muted);margin-bottom:12px"></span>
       <h3>Nenhum produto encontrado</h3>
-      <p style="color:var(--muted);font-size:14px;margin-top:6px">Não há produtos nesta categoria no momento.</p>
+      <p style="color:var(--muted);font-size:14px;margin-top:6px">Tente outros termos de busca ou explore as categorias.</p>
     </div>
 
     <div id="errorState" class="hidden" role="alert">
@@ -162,8 +191,12 @@
   </div>
 </section>
 
-<!-- ====== GALLERY ====== -->
-<section id="gallerySection" class="hidden" aria-label="Galeria de imagens">
+<!-- ====== GALLERY (desativada — aguardando imagens reais) ====== -->
+<!-- A seção de galeria foi temporariamente removida do front porque o array
+     GALLERY_IMAGES referenciava arquivos inexistentes no repositório.
+     Para reativar: adicione as imagens reais em front/assets/img/,
+     atualize o array GALLERY_IMAGES em app.js e restaure este bloco. -->
+<section id="gallerySection" class="hidden" aria-label="Galeria de imagens" aria-hidden="true">
   <div class="section-inner">
     <div class="section-header reveal">
       <div>
@@ -216,6 +249,22 @@
   </div>
 </div>
 
+<!-- ====== WISH PANEL ====== -->
+<div id="wishOverlay" class="cart-overlay" role="dialog" aria-modal="true" aria-label="Favoritos">
+  <div class="cart-panel">
+    <div class="cart-panel-head">
+      <div>
+        <p>Favoritos</p>
+        <h3 id="wishItemsCount">0 itens</h3>
+      </div>
+      <button class="cart-close-btn" onclick="hideWishPanel()" aria-label="Fechar favoritos">
+        <span class="iconify" data-icon="mdi:close" style="font-size:16px"></span>
+      </button>
+    </div>
+    <div id="wishItems"></div>
+  </div>
+</div>
+
 <!-- ====== PRODUCT MODAL ====== -->
 <div id="productModal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Detalhes do produto">
   <div class="modal-content">
@@ -245,10 +294,14 @@
           <span id="modalQty" class="qty-display" aria-live="polite">1</span>
           <button class="qty-btn" onclick="changeModalQty(1)" aria-label="Aumentar quantidade">+</button>
         </div>
-        <button onclick="addModalToCart()" class="btn-primary" style="justify-content:center">
-          <span class="iconify" data-icon="mdi:cart-plus" style="font-size:16px"></span>
-          Adicionar ao carrinho
-        </button>
+        <!-- Botões de ação: adicionar ao carrinho + favoritar -->
+        <div style="display:flex;gap:10px;align-items:center">
+          <button onclick="addModalToCart()" class="btn-primary" style="justify-content:center;flex:1">
+            <span class="iconify" data-icon="mdi:cart-plus" style="font-size:16px"></span>
+            Adicionar ao carrinho
+          </button>
+          <button id="modalWishBtn" type="button" aria-label="Favoritar produto">♡ Favoritar</button>
+        </div>
         <div class="modal-links">
           <a id="modalWppLink" href="#" target="_blank" rel="noopener" class="modal-link">
             <span class="iconify" data-icon="mdi:whatsapp"></span> WhatsApp
@@ -257,6 +310,9 @@
             <span class="iconify" data-icon="mdi:instagram"></span> Instagram
           </a>
         </div>
+
+        <!-- Avaliações de clientes -->
+        <div id="modalReviews" aria-label="Avaliações do produto"></div>
       </div>
     </div>
   </div>
