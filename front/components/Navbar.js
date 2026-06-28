@@ -44,7 +44,7 @@ export default function Navbar({ onOpenCart, onOpenWish }) {
 
           <div className="nav-links" role="menubar">
             {CATEGORIES.map((c) => (
-              <Link key={c.slug} href={`/produtos/${c.slug}`} className="nav-link cat-tab" role="menuitem">
+              <Link key={c.slug} href={`/produtos?cat=${c.slug}`} className="nav-link cat-tab" role="menuitem">
                 {c.label}
               </Link>
             ))}
@@ -83,7 +83,7 @@ export default function Navbar({ onOpenCart, onOpenWish }) {
           {CATEGORIES.map((c) => (
             <Link
               key={c.slug}
-              href={`/produtos/${c.slug}`}
+              href={`/produtos?cat=${c.slug}`}
               className="mobile-link cat-tab"
               onClick={() => setMobileOpen(false)}
             >
