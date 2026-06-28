@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import ProductGrid from '@/components/ProductGrid';
 import { useProducts } from '@/lib/useProducts';
 
@@ -22,7 +21,7 @@ const SORTS = [
   { value: 'name_asc',   label: 'A–Z' },
 ];
 
-export default function ProdutosPage() {
+function ProdutosContent() {
   const searchParams = useSearchParams();
 
   const [category, setCategory] = useState(searchParams.get('cat') || 'all');
@@ -30,7 +29,6 @@ export default function ProdutosPage() {
   const [search, setSearch]     = useState(searchParams.get('q') || '');
   const [inputVal, setInputVal] = useState(searchParams.get('q') || '');
 
-  // Sincroniza quando a URL muda (ex: clique na navbar)
   useEffect(() => {
     const cat = searchParams.get('cat') || 'all';
     const q   = searchParams.get('q')   || '';
@@ -109,5 +107,17 @@ export default function ProdutosPage() {
         />
       </div>
     </section>
+  );
+}
+
+export default function ProdutosPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ paddingTop: 120, textAlign: 'center', color: 'var(--muted)' }}>
+        Carregando…
+      </div>
+    }>
+      <ProdutosContent />
+    </Suspense>
   );
 }
