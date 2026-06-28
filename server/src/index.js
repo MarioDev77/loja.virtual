@@ -49,6 +49,11 @@ if ((process.env.JWT_SECRET || '').length < 32) {
 
 const app = express();
 
+// ─── Trust proxy (Railway / Vercel / qualquer reverse proxy) ─────────────────
+// Necessário para express-rate-limit funcionar corretamente atrás de proxies
+// que adicionam o header X-Forwarded-For (Railway, Vercel, Nginx, etc.)
+app.set('trust proxy', 1);
+
 // ─── Health (antes de tudo)
 app.get("/health", (req, res) => res.status(200).end());
 
@@ -104,7 +109,7 @@ app.use((req, res, next) => {
 // ─── CORS ─────────────────────────────────────────────────────────────────────
 const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim())
-  : ['http://localhost:5500'];
+  : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5500'];
 
 app.use(
   cors({
