@@ -39,8 +39,8 @@
   --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
 
-  --font-display: 'Syne', sans-serif;
-  --font-body:    'Inter', sans-serif;
+  --font-display: var(--font-syne), 'Syne', sans-serif;
+  --font-body:    var(--font-inter), 'Inter', sans-serif;
 }
 
 html { scroll-behavior: smooth; font-size: 16px; }
@@ -478,7 +478,7 @@ img { max-width: 100%; display: block; }
 }
 
 /* Products Grid */
-#productsGrid {
+#productsGrid, .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;

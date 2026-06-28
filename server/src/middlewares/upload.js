@@ -116,4 +116,74 @@ function uploadImage(req, res, next) {
   });
 }
 
-module.exports = { uploadImage, UPLOAD_DIR };
+// ─── Múltiplas imagens (galeria de produto) ───────────────────────────────────
+// Mesmas proteções de uploadImage (magic bytes + sharp), aplicadas a cada
+// arquivo do array. Não substitui uploadImage — é uma rota adicional para
+// quem precisa subir uma galeria inteira de uma vez.
+const MAX_GALLERY_IMAGES = 6;
+
+const uploadMultiple = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB por arquivo
+    files: MAX_GALLERY_IMAGES,
+  },
+  fileFilter: (req, file, cb) => {
+    if (!ALLOWED_MIME.has(file.mimetype)) {
+      return cb(Object.assign(new Error('Only JPEG, PNG and WebP images are allowed'), { status: 415 }));
+    }
+    cb(null, true);
+  },
+});
+
+async function processImages(req, res, next) {
+  if (!req.files || req.files.length === 0) return next();
+
+  try {
+    const processed = [];
+    for (const file of req.files) {
+      const detectedMime = detectMimeFromBuffer(file.buffer);
+      if (!detectedMime) {
+        return res.status(415).json({ error: 'Invalid image file' });
+      }
+
+      const safeFilename = `${crypto.randomBytes(16).toString('hex')}.webp`;
+      const destPath = path.join(UPLOAD_DIR, safeFilename);
+
+      await sharp(file.buffer)
+        .rotate()
+        .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+        .webp({ quality: 82 })
+        .withMetadata(false)
+        .toFile(destPath);
+
+      processed.push({ filename: safeFilename, path: destPath, url: `/uploads/${safeFilename}` });
+    }
+
+    req.uploadedFiles = processed;
+    return next();
+  } catch (err) {
+    return next(err);
+  }
+}
+
+/**
+ * Middleware completo para galeria: multer (array) + validação + sharp.
+ * Uso: router.post('/upload-gallery', uploadImages, handler)
+ * Resultado em req.uploadedFiles: [{ filename, path, url }, ...]
+ */
+function uploadImages(req, res, next) {
+  uploadMultiple.array('images', MAX_GALLERY_IMAGES)(req, res, (err) => {
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE')
+        return res.status(413).json({ error: 'Image too large. Max 5MB per file.' });
+      if (err.code === 'LIMIT_FILE_COUNT')
+        return res.status(413).json({ error: `Maximum ${MAX_GALLERY_IMAGES} images per upload.` });
+      if (err.status) return res.status(err.status).json({ error: err.message });
+      return next(err);
+    }
+    processImages(req, res, next);
+  });
+}
+
+module.exports = { uploadImage, uploadImages, UPLOAD_DIR };
