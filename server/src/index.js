@@ -153,6 +153,7 @@ app.use(
     limit: 150,
     standardHeaders: 'draft-7',
     legacyHeaders: false,
+    validate: { xForwardedForHeader: false },
     message: { error: 'Too many requests, please try again later' },
   })
 );
@@ -163,6 +164,7 @@ const authLimiter = rateLimit({
   limit: 10,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   message: { error: 'Too many login attempts, please try again later' },
 });
 
