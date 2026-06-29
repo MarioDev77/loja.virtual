@@ -52,7 +52,7 @@ const app = express();
 // ─── Trust proxy (Railway / Vercel / qualquer reverse proxy) ─────────────────
 // Necessário para express-rate-limit funcionar corretamente atrás de proxies
 // que adicionam o header X-Forwarded-For (Railway, Vercel, Nginx, etc.)
-app.set('trust proxy', 1);
+app.set('trust proxy', true);
 
 // ─── Health (antes de tudo)
 app.get("/health", (req, res) => res.status(200).end());
