@@ -109,7 +109,12 @@ app.use((req, res, next) => {
 // ─── CORS ─────────────────────────────────────────────────────────────────────
 const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim())
-  : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5500'];
+  : [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:5500',
+      'https://loja-virtual-mauve.vercel.app', // ← adicionado
+    ];
 
 app.use(
   cors({
