@@ -18,12 +18,6 @@ const { UPLOAD_DIR } = require('./middlewares/upload');
 const SEED_IMAGES_DIR = path.resolve(__dirname, '../seed-images');
 
 // ─── Validação de env críticas no boot ───────────────────────────────────────
-// A conexão com o MySQL pode vir de 3 formas (ver src/db/pool.js):
-//   1) MYSQL_URL / DATABASE_URL          (Railway, connection string)
-//   2) MYSQLHOST + MYSQLUSER + ...       (Railway, variáveis nativas)
-//   3) DB_HOST + DB_USER + ...           (local / docker-compose)
-// Por isso a validação aceita qualquer um dos três conjuntos — exigir
-// sempre DB_HOST quebraria o boot em produção no Railway.
 const hasConnectionString = !!(process.env.MYSQL_URL || process.env.DATABASE_URL);
 const hasRailwayVars = !!process.env.MYSQLHOST;
 const hasGenericDbVars = !!process.env.DB_HOST;
@@ -50,9 +44,7 @@ if ((process.env.JWT_SECRET || '').length < 32) {
 const app = express();
 
 // ─── Trust proxy (Railway / Vercel / qualquer reverse proxy) ─────────────────
-// Necessário para express-rate-limit funcionar corretamente atrás de proxies
-// que adicionam o header X-Forwarded-For (Railway, Vercel, Nginx, etc.)
-app.set('trust proxy', true);
+app.set('trust proxy', 1);
 
 // ─── Health (antes de tudo)
 app.get("/health", (req, res) => res.status(200).end());
@@ -105,25 +97,16 @@ app.use((req, res, next) => {
   next();
 });
 
-
 // ─── CORS ─────────────────────────────────────────────────────────────────────
 const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim())
-  : [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://localhost:5500',
-      'https://loja-virtual-mauve.vercel.app', // ← adicionado
-    ];
+  : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5500'];
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) {
-        if (process.env.NODE_ENV === 'production')
-          return callback(new Error('CORS: origin required in production'));
-        return callback(null, true);
-      }
+      // Permite requisições sem origin (SSR do Next.js, curl, mobile apps)
+      if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error(`CORS: origin ${origin} not allowed`));
     },
@@ -158,7 +141,6 @@ app.use(
     limit: 150,
     standardHeaders: 'draft-7',
     legacyHeaders: false,
-    validate: { xForwardedForHeader: false },
     message: { error: 'Too many requests, please try again later' },
   })
 );
@@ -169,19 +151,15 @@ const authLimiter = rateLimit({
   limit: 10,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
-  validate: { xForwardedForHeader: false },
   message: { error: 'Too many login attempts, please try again later' },
 });
 
 // ─── Arquivos de upload (estático, só imagens processadas) ───────────────────
-// Servido com headers restritivos — sem execução de scripts
 app.use(
   '/uploads',
   (req, res, next) => {
-    // Só GET e HEAD permitidos
     if (!['GET', 'HEAD'].includes(req.method))
       return res.status(405).end();
-    // Path traversal: rejeita qualquer coisa com / ou .. fora do nome do arquivo
     if (/[/\\]/.test(req.params[0] || '') || req.path.includes('..'))
       return res.status(400).end();
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
@@ -190,15 +168,13 @@ app.use(
     next();
   },
   express.static(UPLOAD_DIR, {
-    index: false,       // sem listagem de diretório
-    dotfiles: 'deny',  // sem arquivos ocultos
+    index: false,
+    dotfiles: 'deny',
     etag: false,
   })
 );
 
 // ─── Imagens do catálogo inicial (seed) ───────────────────────────────────────
-// Mesmas proteções do /uploads. Pasta versionada no repositório (diferente de
-// UPLOAD_DIR), pois são imagens fixas dos produtos, não uploads de usuário.
 app.use(
   '/seed-images',
   (req, res, next) => {
