@@ -1,3 +1,54 @@
-.env
+# ============================================================
+# .gitignore — projetinho (front Next.js + server Express/MySQL)
+# ============================================================
+
+# ── Dependências ───────────────────────────────────────────────────────────
 node_modules/
-seed.jsserver/.env
+front/node_modules/
+server/node_modules/
+
+# ── Variáveis de ambiente (segredos) ───────────────────────────────────────
+.env
+.env.*
+!.env.example
+front/.env
+front/.env.*
+!front/.env.example
+server/.env
+server/.env.*
+!server/.env.example
+
+# ── Next.js (front) ────────────────────────────────────────────────────────
+front/.next/
+front/out/
+front/build/
+front/.vercel/
+front/*.tsbuildinfo
+front/next-env.d.ts
+
+# ── Uploads dinâmicos do painel admin (NÃO confundir com seed-images/) ─────
+# seed-images/ é o catálogo inicial, versionado de propósito — não entra aqui.
+server/uploads/*
+!server/uploads/.gitkeep
+
+# ── Logs ────────────────────────────────────────────────────────────────────
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# ── Sistema operacional / editor ────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# ── Coverage / testes ───────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ── Docker (dados locais, se usar volume bind) ─────────────────────────────
+docker-data/
+mysql-data/
