@@ -1,5 +1,5 @@
 'use strict';
-// Aplica TODAS as migrations pendentes (etapa7 + etapa8 + etapa9) de uma vez,
+// Aplica TODAS as migrations pendentes (etapa7 a etapa11) de uma vez,
 // na ordem certa. Roda uma vez só (todas fazem INSERT puro, sem ON DUPLICATE KEY).
 const fs = require('fs');
 const path = require('path');
@@ -9,6 +9,8 @@ const MIGRATIONS = [
   'sql/etapa7_add_produtos_blusas_reais.sql',
   'sql/etapa8_add_meias_camisas_termicas.sql',
   'sql/etapa9_add_chuteiras_society.sql',
+  'sql/etapa10_add_chuteiras_campo.sql',
+  'sql/etapa11_add_chuteiras_campo_2.sql',
 ];
 
 async function run() {
