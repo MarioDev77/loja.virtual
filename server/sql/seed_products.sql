@@ -56,15 +56,3 @@ ON DUPLICATE KEY UPDATE
 -- senão o INSERT automático colide com um ID existente.
 ALTER TABLE products AUTO_INCREMENT = 21;
 
--- Cupons (exemplos)
-INSERT INTO coupons (id, code, discount_type, discount_value, min_subtotal, max_discount_amount, expires_at, usage_limit, used_count, is_active)
-VALUES
-  (1,'PITCH10','percent',10,200,NULL,DATE_ADD(NOW(), INTERVAL 365 DAY),1000,0,1),
-  (2,'FUTSAL5','percent',5,0,NULL,DATE_ADD(NOW(), INTERVAL 180 DAY),1000,0,1),
-  (3,'FRETEGRATIS','fixed',15,0,NULL,DATE_ADD(NOW(), INTERVAL 90 DAY),500,0,0)
-ON DUPLICATE KEY UPDATE
-  code=VALUES(code), discount_type=VALUES(discount_type), discount_value=VALUES(discount_value),
-  min_subtotal=VALUES(min_subtotal), max_discount_amount=VALUES(max_discount_amount),
-  expires_at=VALUES(expires_at), usage_limit=VALUES(usage_limit),
-  used_count=VALUES(used_count), is_active=VALUES(is_active);
-

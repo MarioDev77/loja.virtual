@@ -21,15 +21,31 @@ require('dotenv').config();
 function resolvePoolConfig() {
   const connectionString = process.env.MYSQL_URL || process.env.DATABASE_URL;
 
-  // SSL: obrigatório para hosts remotos (Railway exige TLS na proxy pública).
-  // Em host local (127.0.0.1/localhost) ou docker-compose, mantemos SSL
-  // desligado para não complicar o ambiente de desenvolvimento.
+  // SSL: hosts remotos usam TLS quando disponível. Em host local
+  // (127.0.0.1/localhost/docker-compose) ou na rede privada do Railway
+  // (*.railway.internal), mantemos SSL desligado — não é necessário e,
+  // no caso do Railway, a rede interna já é isolada por projeto.
   const wantsSsl = (host) => {
     if (process.env.DB_SSL === 'false') return false;
     if (process.env.DB_SSL === 'true') return true;
     if (!host) return false;
-    return !['localhost', '127.0.0.1', 'db', 'mysql'].includes(host);
+    if (['localhost', '127.0.0.1', 'db', 'mysql'].includes(host)) return false;
+    if (host.endsWith('.railway.internal')) return false;
+    return true;
   };
+
+  // rejectUnauthorized estrito (true) exige que o certificado do servidor
+  // seja validado contra uma CA confiável. O proxy público do MySQL do
+  // Railway (*.proxy.rlwy.net) apresenta um certificado que normalmente
+  // NÃO passa nessa validação — isso derruba a conexão com um erro de
+  // handshake TLS silencioso, e é uma causa comum de "service unavailable"
+  // em produção sem nenhuma mensagem clara no log de build.
+  // Por padrão usamos rejectUnauthorized: false (ainda criptografado, só
+  // não valida a cadeia). Para exigir validação estrita (ex.: com CA
+  // própria), defina DB_SSL_STRICT=true.
+  const sslOptions = () => ({
+    rejectUnauthorized: process.env.DB_SSL_STRICT === 'true',
+  });
 
   if (connectionString) {
     let parsed;
@@ -46,7 +62,7 @@ function resolvePoolConfig() {
       user: decodeURIComponent(parsed.username),
       password: decodeURIComponent(parsed.password),
       database: decodeURIComponent(parsed.pathname.replace(/^\//, '')),
-      ssl: wantsSsl(host) ? { rejectUnauthorized: true } : undefined,
+      ssl: wantsSsl(host) ? sslOptions() : undefined,
     };
   }
 
@@ -59,7 +75,7 @@ function resolvePoolConfig() {
       user: process.env.MYSQLUSER,
       password: process.env.MYSQLPASSWORD,
       database: process.env.MYSQLDATABASE,
-      ssl: wantsSsl(host) ? { rejectUnauthorized: true } : undefined,
+      ssl: wantsSsl(host) ? sslOptions() : undefined,
     };
   }
 
@@ -71,7 +87,7 @@ function resolvePoolConfig() {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    ssl: wantsSsl(host) ? { rejectUnauthorized: true } : undefined,
+    ssl: wantsSsl(host) ? sslOptions() : undefined,
   };
 }
 
@@ -90,6 +106,19 @@ const pool = mysql.createPool({
   // security: do not allow multiple statements
   multipleStatements: false,
 });
+
+// ─── Probe de conectividade no boot ───────────────────────────────────────────
+// Não é fatal (não derruba o processo nem o healthcheck) — só deixa um log
+// claro se o banco estiver inacessível, em vez do app parecer saudável
+// (porque /health não depende do banco) enquanto toda rota que usa o DB falha.
+pool
+  .query('SELECT 1')
+  .then(() => console.log(`[db] Conectado a ${resolved.host}:${resolved.port}/${resolved.database}`))
+  .catch((err) => {
+    console.error(
+      `[db] FALHA ao conectar em ${resolved.host}:${resolved.port}/${resolved.database} — ${err.code || err.message}`
+    );
+  });
 
 module.exports = { pool };
 

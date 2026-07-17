@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useCart } from '@/context/CartContext';
 import { useWish } from '@/context/WishContext';
 
 const CATEGORIES = [
@@ -19,10 +18,9 @@ const CATEGORIES = [
  * menu mobile. onOpenCart/onOpenWish vêm de fora porque os painéis (cart
  * panel / wish panel) vivem no layout da loja, não na navbar.
  */
-export default function Navbar({ onOpenCart, onOpenWish }) {
+export default function Navbar({ onOpenWish }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { count: cartCount } = useCart();
   const { count: wishCount } = useWish();
 
   useEffect(() => {
@@ -54,10 +52,6 @@ export default function Navbar({ onOpenCart, onOpenWish }) {
             <button className="nav-cart-btn" onClick={onOpenWish} aria-label="Favoritos" style={{ position: 'relative' }} title="Favoritos">
               <span className="iconify" data-icon="mdi:heart-outline" style={{ fontSize: 18 }} />
               <span aria-label="favoritos salvos">{wishCount > 0 ? wishCount : ''}</span>
-            </button>
-            <button className="nav-cart-btn" onClick={onOpenCart} aria-label="Abrir carrinho">
-              <span className="iconify" data-icon="mdi:shopping-bag-outline" style={{ fontSize: 18 }} />
-              <span aria-label="itens no carrinho">{cartCount}</span>
             </button>
             <button
               className="nav-hamburger"

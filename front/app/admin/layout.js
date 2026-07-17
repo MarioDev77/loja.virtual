@@ -18,7 +18,6 @@ const ADMIN_PREFIX = '/manage';
 
 const NAV_ITEMS = [
   { href: '/admin',          icon: 'mdi:view-dashboard-outline', label: 'Dashboard' },
-  { href: '/admin/pedidos',  icon: 'mdi:clipboard-list-outline', label: 'Pedidos' },
   { href: '/admin/produtos', icon: 'mdi:package-variant-outline', label: 'Produtos' },
   { href: '/admin/usuarios', icon: 'mdi:account-group-outline',  label: 'Usuários' },
 ];

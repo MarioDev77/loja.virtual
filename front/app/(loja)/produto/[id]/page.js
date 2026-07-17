@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useCart } from '@/context/CartContext';
 import { useWish } from '@/context/WishContext';
 import { useToast } from '@/context/ToastContext';
 import { apiRequest } from '@/lib/api';
@@ -25,7 +24,6 @@ export default function ProdutoPage() {
   const { id }    = useParams();
   const router    = useRouter();
   const showToast = useToast();
-  const { addToCart }            = useCart();
   const { isWished, toggleWish } = useWish();
 
   const [product, setProduct] = useState(null);
@@ -33,7 +31,6 @@ export default function ProdutoPage() {
   const [error,   setError]   = useState('');
 
   const [selectedSize, setSelectedSize] = useState(null);
-  const [qty, setQty]                   = useState(1);
 
   const [reviews,       setReviews]       = useState(null);
   const [reviewsStatus, setReviewsStatus] = useState('loading');
@@ -47,7 +44,6 @@ export default function ProdutoPage() {
       .then((data) => {
         setProduct(data);
         setSelectedSize((data.sizes && data.sizes[0]) || null);
-        setQty(1);
       })
       .catch((err) => setError(err.message || 'Produto não encontrado.'))
       .finally(() => setLoading(false));
@@ -64,12 +60,6 @@ export default function ProdutoPage() {
       })
       .catch(() => setReviewsStatus('error'));
   }, [id]);
-
-  function handleAddToCart() {
-    if (!product) return;
-    addToCart(product, selectedSize, qty);
-    showToast('Produto adicionado ao carrinho', 'success');
-  }
 
   function handleWish() {
     if (!product) return;
@@ -168,27 +158,11 @@ export default function ProdutoPage() {
             </div>
           )}
 
-          {/* Quantidade */}
-          <div className="qty-row" style={{ marginBottom: 20 }}>
-            <button className="qty-btn" onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Diminuir quantidade">−</button>
-            <span className="qty-display" aria-live="polite">{qty}</span>
-            <button className="qty-btn" onClick={() => setQty((q) => Math.min(10, q + 1))} aria-label="Aumentar quantidade">+</button>
-          </div>
-
           {/* Ações */}
           <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 20 }}>
-            <button onClick={handleAddToCart} className="btn-primary" style={{ flex: 1, justifyContent: 'center' }}>
-              <span className="iconify" data-icon="mdi:cart-plus" style={{ fontSize: 16 }} />
-              Adicionar ao carrinho
-            </button>
-            <button
-              type="button"
-              className={wished ? 'wished' : ''}
-              onClick={handleWish}
-              aria-label="Favoritar produto"
-              style={{ padding: '12px 16px', borderRadius: 12, border: '1px solid var(--border)', background: wished ? 'var(--amber)' : 'transparent', cursor: 'pointer', fontSize: 16, transition: 'all 0.2s' }}
-            >
-              {wished ? '♥' : '♡'}
+            <button onClick={handleWish} className="btn-primary" style={{ flex: 1, justifyContent: 'center' }}>
+              <span className="iconify" data-icon={wished ? 'mdi:heart' : 'mdi:heart-outline'} style={{ fontSize: 16 }} />
+              {wished ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
             </button>
           </div>
 

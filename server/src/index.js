@@ -102,32 +102,12 @@ const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim())
   : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5500'];
 
-// Previews da Vercel têm subdomínio dinâmico (ex: loja-virtual-git-branch-
-// usuario.vercel.app). Em vez de abrir CORS pra *.vercel.app inteiro (o que
-// liberaria QUALQUER projeto na Vercel, não só o seu), só aceita subdomínios
-// que comecem com o prefixo do seu projeto.
-const VERCEL_PREVIEW_PREFIX = process.env.VERCEL_PREVIEW_PREFIX || 'loja-virtual-';
-
-function isAllowedVercelPreview(origin) {
-  try {
-    const { hostname, protocol } = new URL(origin);
-    return (
-      protocol === 'https:' &&
-      hostname.endsWith('.vercel.app') &&
-      hostname.startsWith(VERCEL_PREVIEW_PREFIX)
-    );
-  } catch {
-    return false;
-  }
-}
-
 app.use(
   cors({
     origin: (origin, callback) => {
       // Permite requisições sem origin (SSR do Next.js, curl, mobile apps)
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
-      if (isAllowedVercelPreview(origin)) return callback(null, true);
       return callback(new Error(`CORS: origin ${origin} not allowed`));
     },
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],

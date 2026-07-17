@@ -44,10 +44,6 @@ const ProductSchema = z.object({
   height_cm: z.number().positive().nullable().optional(),
 });
 
-const OrderStatusSchema = z.object({
-  status: z.enum(['pending', 'paid', 'cancelled', 'refunded']),
-});
-
 // ─── Helper: resolve slug de categoria → category_id ─────────────────────────
 // Schema usa products.category_id (FK) referenciando categories.id — não
 // existe coluna "category" solta em products (ver server/sql/schema.sql).
@@ -87,14 +83,10 @@ function parseMultipartBody(body) {
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 router.get('/dashboard', async (req, res, next) => {
   try {
-    const [[{ total_orders }]] = await pool.query('SELECT COUNT(*) AS total_orders FROM orders');
-    const [[{ total_revenue }]] = await pool.query(
-      "SELECT COALESCE(SUM(total_amount),0) AS total_revenue FROM orders WHERE status='paid'"
-    );
     const [[{ total_products }]] = await pool.query(
       'SELECT COUNT(*) AS total_products FROM products WHERE is_active=1'
     );
-    return res.json({ total_orders, total_revenue: Number(total_revenue), total_products });
+    return res.json({ total_products });
   } catch (err) { return next(err); }
 });
 
@@ -375,74 +367,6 @@ router.delete('/products/:id', async (req, res, next) => {
     if (result.affectedRows === 0)
       return res.status(404).json({ error: 'Not found' });
     return res.json({ deleted: true });
-  } catch (err) {
-    if (err.status) return res.status(err.status).json({ error: err.message });
-    return next(err);
-  }
-});
-
-// ─── Pedidos ──────────────────────────────────────────────────────────────────
-router.get('/orders', async (req, res, next) => {
-  try {
-    const page = Math.max(1, parseInt(req.query.page) || 1);
-    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
-    const offset = (page - 1) * limit;
-    const [rows] = await pool.query(
-      `SELECT id, customer_name, email, payment_method, total_amount, status, created_at
-       FROM orders ORDER BY created_at DESC LIMIT ? OFFSET ?`,
-      [limit, offset]
-    );
-    return res.json({ orders: rows });
-  } catch (err) { return next(err); }
-});
-
-router.patch('/orders/:id/status', async (req, res, next) => {
-  try {
-    const id = parsePositiveInt(req.params.id, 'order id');
-    const parsed = OrderStatusSchema.safeParse(req.body);
-    if (!parsed.success)
-      return res.status(400).json({ error: 'Invalid status' });
-
-    const newStatus = parsed.data.status;
-
-    // Transação: lê status atual, atualiza, e só incrementa sold_qty na
-    // transição PARA 'paid' que ainda não estava em 'paid' (evita duplo
-    // incremento se o admin marcar 'paid' mais de uma vez).
-    const conn = await pool.getConnection();
-    try {
-      await conn.beginTransaction();
-
-      const [[order]] = await conn.query('SELECT id, status FROM orders WHERE id = ? FOR UPDATE', [id]);
-      if (!order) {
-        await conn.rollback();
-        return res.status(404).json({ error: 'Not found' });
-      }
-
-      const wasAlreadyPaid = order.status === 'paid';
-
-      await conn.execute('UPDATE orders SET status = ? WHERE id = ?', [newStatus, id]);
-
-      if (newStatus === 'paid' && !wasAlreadyPaid) {
-        const [items] = await conn.query(
-          'SELECT product_id, qty FROM order_items WHERE order_id = ?',
-          [id]
-        );
-        for (const item of items) {
-          await conn.execute(
-            'UPDATE products SET sold_qty = sold_qty + ? WHERE id = ?',
-            [item.qty, item.product_id]
-          );
-        }
-      }
-
-      await conn.commit();
-      return res.json({ updated: true });
-    } catch (e) {
-      await conn.rollback();
-      throw e;
-    } finally {
-      conn.release();
-    }
   } catch (err) {
     if (err.status) return res.status(err.status).json({ error: err.message });
     return next(err);

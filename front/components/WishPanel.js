@@ -1,6 +1,6 @@
 'use client';
 
-import { useCart } from '@/context/CartContext';
+import Link from 'next/link';
 import { useWish } from '@/context/WishContext';
 import { brl } from '@/lib/format';
 
@@ -12,14 +12,6 @@ import { brl } from '@/lib/format';
  */
 export default function WishPanel({ open, onClose, onToast }) {
   const { ids, snapshots, toggleWish } = useWish();
-  const { addToCart } = useCart();
-
-  function handleAddToCart(id) {
-    const snap = snapshots[id];
-    if (!snap) return;
-    addToCart({ id, ...snap }, null, 1);
-    if (onToast) onToast(`${snap.name} adicionado ao carrinho`, 'success');
-  }
 
   function handleRemove(id) {
     toggleWish(id);
@@ -56,9 +48,9 @@ export default function WishPanel({ open, onClose, onToast }) {
                   <div className="name">{(p && p.name) || `Produto #${id}`}</div>
                   <div className="meta">{(p && p.brand) || ''}</div>
                   {p && p.price ? <div className="cart-line-price">{brl(p.price)}</div> : null}
-                  <button type="button" className="btn-wish-add" onClick={() => handleAddToCart(id)}>
-                    Adicionar ao carrinho
-                  </button>
+                  <Link href={`/produto/${id}`} className="btn-wish-add" onClick={onClose}>
+                    Ver produto
+                  </Link>
                   <button type="button" className="cart-remove-btn" onClick={() => handleRemove(id)}>
                     Remover
                   </button>

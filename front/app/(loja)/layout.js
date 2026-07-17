@@ -2,23 +2,21 @@
 
 import { useState } from 'react';
 import Navbar from '@/components/Navbar';
-import CartPanel from '@/components/CartPanel';
 import WishPanel from '@/components/WishPanel';
 import { useToast } from '@/context/ToastContext';
 
 /**
  * Layout da loja (route group "(loja)") — réplica da estrutura comum a
- * todas as páginas do front vanilla: navbar fixa, painel de carrinho,
- * painel de favoritos e footer. Não afeta a URL (route group).
+ * todas as páginas do front vanilla: navbar fixa, painel de favoritos e
+ * footer. Não afeta a URL (route group).
  */
 export default function StoreLayout({ children }) {
-  const [cartOpen, setCartOpen] = useState(false);
   const [wishOpen, setWishOpen] = useState(false);
   const showToast = useToast();
 
   return (
     <>
-      <Navbar onOpenCart={() => setCartOpen(true)} onOpenWish={() => setWishOpen(true)} />
+      <Navbar onOpenWish={() => setWishOpen(true)} />
 
       {children}
 
@@ -33,7 +31,6 @@ export default function StoreLayout({ children }) {
         <p>© 2026 Pitch Futebol. Todos os direitos reservados.</p>
       </footer>
 
-      <CartPanel open={cartOpen} onClose={() => setCartOpen(false)} />
       <WishPanel open={wishOpen} onClose={() => setWishOpen(false)} onToast={showToast} />
     </>
   );

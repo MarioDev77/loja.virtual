@@ -17,7 +17,6 @@ const express = require('express');
 
 const authRouter = require('./auth');
 const productsRouter = require('./products');
-const ordersRouter = require('./orders');
 const adminRouter = require('./admin');
 
 const router = express.Router();
@@ -25,7 +24,6 @@ const router = express.Router();
 // ─── Rotas públicas / autenticadas normais ────────────────────────────────────
 router.use('/auth', authRouter);
 router.use('/products', productsRouter);
-router.use('/orders', ordersRouter);
 
 // ─── Painel admin — prefixo oculto, configurável via .env ────────────────────
 const ADMIN_ROUTE_PREFIX = process.env.ADMIN_ROUTE_PREFIX || '/manage';

@@ -1,39 +1,20 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { apiRequest } from '@/lib/api';
+import { useWish } from '@/context/WishContext';
 import { brl } from '@/lib/format';
 
-const STATUS_LABELS = {
-  pending:    'Pendente',
-  processing: 'Processando',
-  shipped:    'Enviado',
-  delivered:  'Entregue',
-  cancelled:  'Cancelado',
-};
-
 export default function ContaPage() {
-  const { token, user, login, logout, isAuthenticated } = useAuth();
+  const { user, login, logout, isAuthenticated } = useAuth();
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginErr, setLoginErr] = useState('');
   const [logging,  setLogging]  = useState(false);
 
-  const [orders,  setOrders]  = useState([]);
-  const [ordersStatus, setOrdersStatus] = useState('loading');
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    setOrdersStatus('loading');
-    apiRequest('/orders/my', { token })
-      .then((data) => {
-        setOrders(data.orders || []);
-        setOrdersStatus('ready');
-      })
-      .catch(() => setOrdersStatus('error'));
-  }, [isAuthenticated, token]);
+  const { ids: wishIds, snapshots: wishSnapshots, toggleWish } = useWish();
 
   async function handleLogin(e) {
     e.preventDefault();
@@ -96,50 +77,48 @@ export default function ContaPage() {
       </div>
 
       <section>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, marginBottom: 16 }}>Meus pedidos</h2>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, marginBottom: 16 }}>
+          Meus favoritos {wishIds.length > 0 ? `(${wishIds.length})` : ''}
+        </h2>
 
-        {ordersStatus === 'loading' && (
-          <p style={{ color: 'var(--muted)' }}>Carregando pedidos…</p>
-        )}
-        {ordersStatus === 'error' && (
-          <p style={{ color: 'var(--muted)' }}>Não foi possível carregar seus pedidos.</p>
-        )}
-        {ordersStatus === 'ready' && !orders.length && (
+        {wishIds.length === 0 && (
           <div id="emptyState" role="status">
-            <span className="iconify" data-icon="mdi:package-variant-closed-remove" style={{ fontSize: 36, color: 'var(--muted)', marginBottom: 12 }} />
-            <h3>Nenhum pedido ainda</h3>
-            <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 6 }}>Quando você fizer um pedido, ele aparecerá aqui.</p>
+            <span className="iconify" data-icon="mdi:heart-outline" style={{ fontSize: 36, color: 'var(--muted)', marginBottom: 12 }} />
+            <h3>Nenhum favorito ainda</h3>
+            <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 6 }}>Clique no ♡ de um produto para salvá-lo aqui.</p>
           </div>
         )}
-        {ordersStatus === 'ready' && orders.map((order) => (
-          <div key={order.id} style={{ background: 'var(--surface)', borderRadius: 16, padding: 20, marginBottom: 16, border: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8 }}>
-              <div>
-                <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}>Pedido #{order.id}</span>
-                <span style={{ marginLeft: 12, fontSize: 13, color: 'var(--muted)' }}>
-                  {order.created_at ? new Date(order.created_at).toLocaleDateString('pt-BR') : ''}
-                </span>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16 }}>
+          {wishIds.map((id) => {
+            const p = wishSnapshots[id];
+            return (
+              <div key={id} style={{ background: 'var(--surface)', borderRadius: 16, padding: 16, border: '1px solid var(--border)' }}>
+                <Link href={`/produto/${id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={(p && p.image) || ''}
+                    alt={(p && p.name) || 'Produto'}
+                    style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 10, marginBottom: 10 }}
+                  />
+                  <p style={{ fontSize: 12, color: 'var(--muted)' }}>{(p && p.brand) || ''}</p>
+                  <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 14 }}>{(p && p.name) || `Produto #${id}`}</p>
+                  {p && p.price ? (
+                    <p style={{ fontFamily: 'var(--font-display)', fontWeight: 800, color: 'var(--amber-dk)', marginTop: 4 }}>{brl(p.price)}</p>
+                  ) : null}
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => toggleWish(id)}
+                  className="btn-secondary"
+                  style={{ width: '100%', justifyContent: 'center', marginTop: 10, fontSize: 13 }}
+                >
+                  Remover dos favoritos
+                </button>
               </div>
-              <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                <span style={{ fontSize: 13, padding: '4px 10px', borderRadius: 8, background: 'var(--amber)', color: '#fff', fontWeight: 600 }}>
-                  {STATUS_LABELS[order.status] || order.status}
-                </span>
-                <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, color: 'var(--amber-dk)' }}>
-                  {brl(order.total_amount)}
-                </span>
-              </div>
-            </div>
-            {order.items && order.items.length > 0 && (
-              <div style={{ marginTop: 12, fontSize: 13, color: 'var(--muted)' }}>
-                {order.items.map((it, i) => (
-                  <span key={i}>
-                    {it.qty}x {it.name} (Tam. {it.size || '—'}){i < order.items.length - 1 ? ', ' : ''}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+            );
+          })}
+        </div>
       </section>
     </div>
   );

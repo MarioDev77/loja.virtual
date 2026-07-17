@@ -1,7 +1,6 @@
 'use client';
 
 import { AuthProvider } from '@/context/AuthContext';
-import { CartProvider } from '@/context/CartContext';
 import { WishProvider } from '@/context/WishContext';
 import { ToastProvider } from '@/context/ToastContext';
 
@@ -15,9 +14,7 @@ export default function Providers({ children }) {
   return (
     <ToastProvider>
       <AuthProvider>
-        <CartProvider>
-          <WishProvider>{children}</WishProvider>
-        </CartProvider>
+        <WishProvider>{children}</WishProvider>
       </AuthProvider>
     </ToastProvider>
   );
