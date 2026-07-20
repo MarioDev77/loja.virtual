@@ -20,15 +20,76 @@
 USE pitch_futebol;
 
 -- ── Novos campos em products ──────────────────────────────────────────────
--- Nota: MySQL 8.0.29+ suporta "ADD COLUMN IF NOT EXISTS". Se sua versão
--- for anterior, remova o "IF NOT EXISTS" e rode uma vez só.
-ALTER TABLE products
-  ADD COLUMN IF NOT EXISTS sku VARCHAR(60) NULL,
-  ADD COLUMN IF NOT EXISTS weight_grams INT UNSIGNED NULL,
-  ADD COLUMN IF NOT EXISTS length_cm DECIMAL(6,2) NULL,
-  ADD COLUMN IF NOT EXISTS width_cm DECIMAL(6,2) NULL,
-  ADD COLUMN IF NOT EXISTS height_cm DECIMAL(6,2) NULL,
-  ADD COLUMN IF NOT EXISTS sold_qty INT UNSIGNED NOT NULL DEFAULT 0;
+-- Nota: a versão do MySQL do servidor não aceitou "ADD COLUMN IF NOT
+-- EXISTS" (suportado só a partir do MySQL 8.0.29). Por isso cada coluna
+-- é checada via information_schema antes de ser adicionada — mesmo
+-- padrão já usado abaixo para o índice uk_products_sku.
+
+SET @col_exists = (
+  SELECT COUNT(*) FROM information_schema.columns
+  WHERE table_schema = DATABASE() AND table_name = 'products' AND column_name = 'sku'
+);
+SET @sql_col = IF(@col_exists = 0,
+  'ALTER TABLE products ADD COLUMN sku VARCHAR(60) NULL',
+  'SELECT "sku already exists"');
+PREPARE stmt FROM @sql_col;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @col_exists = (
+  SELECT COUNT(*) FROM information_schema.columns
+  WHERE table_schema = DATABASE() AND table_name = 'products' AND column_name = 'weight_grams'
+);
+SET @sql_col = IF(@col_exists = 0,
+  'ALTER TABLE products ADD COLUMN weight_grams INT UNSIGNED NULL',
+  'SELECT "weight_grams already exists"');
+PREPARE stmt FROM @sql_col;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @col_exists = (
+  SELECT COUNT(*) FROM information_schema.columns
+  WHERE table_schema = DATABASE() AND table_name = 'products' AND column_name = 'length_cm'
+);
+SET @sql_col = IF(@col_exists = 0,
+  'ALTER TABLE products ADD COLUMN length_cm DECIMAL(6,2) NULL',
+  'SELECT "length_cm already exists"');
+PREPARE stmt FROM @sql_col;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @col_exists = (
+  SELECT COUNT(*) FROM information_schema.columns
+  WHERE table_schema = DATABASE() AND table_name = 'products' AND column_name = 'width_cm'
+);
+SET @sql_col = IF(@col_exists = 0,
+  'ALTER TABLE products ADD COLUMN width_cm DECIMAL(6,2) NULL',
+  'SELECT "width_cm already exists"');
+PREPARE stmt FROM @sql_col;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @col_exists = (
+  SELECT COUNT(*) FROM information_schema.columns
+  WHERE table_schema = DATABASE() AND table_name = 'products' AND column_name = 'height_cm'
+);
+SET @sql_col = IF(@col_exists = 0,
+  'ALTER TABLE products ADD COLUMN height_cm DECIMAL(6,2) NULL',
+  'SELECT "height_cm already exists"');
+PREPARE stmt FROM @sql_col;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @col_exists = (
+  SELECT COUNT(*) FROM information_schema.columns
+  WHERE table_schema = DATABASE() AND table_name = 'products' AND column_name = 'sold_qty'
+);
+SET @sql_col = IF(@col_exists = 0,
+  'ALTER TABLE products ADD COLUMN sold_qty INT UNSIGNED NOT NULL DEFAULT 0',
+  'SELECT "sold_qty already exists"');
+PREPARE stmt FROM @sql_col;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 -- UNIQUE KEY em sku precisa ser adicionada separadamente (sintaxe
 -- IF NOT EXISTS não cobre constraints em todas as versões do MySQL).

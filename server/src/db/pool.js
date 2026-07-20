@@ -46,7 +46,7 @@ function resolvePoolConfig() {
       user: decodeURIComponent(parsed.username),
       password: decodeURIComponent(parsed.password),
       database: decodeURIComponent(parsed.pathname.replace(/^\//, '')),
-      ssl: wantsSsl(host) ? { rejectUnauthorized: false } : undefined,
+      ssl: wantsSsl(host) ? { rejectUnauthorized: true } : undefined,
     };
   }
 
@@ -59,7 +59,7 @@ function resolvePoolConfig() {
       user: process.env.MYSQLUSER,
       password: process.env.MYSQLPASSWORD,
       database: process.env.MYSQLDATABASE,
-      ssl: wantsSsl(host) ? { rejectUnauthorized: false } : undefined,
+      ssl: wantsSsl(host) ? { rejectUnauthorized: true } : undefined,
     };
   }
 
@@ -71,7 +71,7 @@ function resolvePoolConfig() {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    ssl: wantsSsl(host) ? { rejectUnauthorized: false } : undefined,
+    ssl: wantsSsl(host) ? { rejectUnauthorized: true } : undefined,
   };
 }
 
