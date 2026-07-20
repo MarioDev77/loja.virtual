@@ -24,6 +24,11 @@ function resolvePoolConfig() {
   // SSL: obrigatório para hosts remotos (Railway exige TLS na proxy pública).
   // Em host local (127.0.0.1/localhost) ou docker-compose, mantemos SSL
   // desligado para não complicar o ambiente de desenvolvimento.
+  //
+  // rejectUnauthorized: false — o MySQL do Railway usa certificado
+  // autoassinado (não emitido por uma CA pública), então a validação da
+  // cadeia de certificado precisa ficar desligada. A conexão continua
+  // criptografada via TLS; só não valida quem assinou o certificado.
   const wantsSsl = (host) => {
     if (process.env.DB_SSL === 'false') return false;
     if (process.env.DB_SSL === 'true') return true;
@@ -46,7 +51,7 @@ function resolvePoolConfig() {
       user: decodeURIComponent(parsed.username),
       password: decodeURIComponent(parsed.password),
       database: decodeURIComponent(parsed.pathname.replace(/^\//, '')),
-      ssl: wantsSsl(host) ? { rejectUnauthorized: true } : undefined,
+      ssl: wantsSsl(host) ? { rejectUnauthorized: false } : undefined,
     };
   }
 
@@ -59,7 +64,7 @@ function resolvePoolConfig() {
       user: process.env.MYSQLUSER,
       password: process.env.MYSQLPASSWORD,
       database: process.env.MYSQLDATABASE,
-      ssl: wantsSsl(host) ? { rejectUnauthorized: true } : undefined,
+      ssl: wantsSsl(host) ? { rejectUnauthorized: false } : undefined,
     };
   }
 
@@ -71,7 +76,7 @@ function resolvePoolConfig() {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    ssl: wantsSsl(host) ? { rejectUnauthorized: true } : undefined,
+    ssl: wantsSsl(host) ? { rejectUnauthorized: false } : undefined,
   };
 }
 
@@ -92,4 +97,3 @@ const pool = mysql.createPool({
 });
 
 module.exports = { pool };
-
