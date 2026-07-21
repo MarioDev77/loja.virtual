@@ -9,6 +9,18 @@
 /* ─── Reset & Base ─────────────────────────────────────────── */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* Ícones locais: evita que um script externo altere o DOM controlado pelo
+   React durante a troca de página. */
+.iconify { display: inline-flex; align-items: center; justify-content: center; line-height: 1; }
+.iconify::before { content: '•'; }
+.iconify[data-icon="mdi:heart-outline"]::before { content: '♡'; }
+.iconify[data-icon="mdi:heart"]::before { content: '♥'; }
+.iconify[data-icon="mdi:menu"]::before { content: '☰'; }
+.iconify[data-icon="mdi:close"]::before { content: '×'; }
+.iconify[data-icon="mdi:whatsapp"]::before { content: '☎'; }
+.iconify[data-icon="mdi:magnify"]::before { content: '⌕'; }
+.iconify[data-icon="mdi:shoe-cleat"]::before { content: '⚽'; }
+
 :root {
   --ink:       #0F0F0E;
   --ink-2:     #1A1917;
@@ -138,10 +150,33 @@ img { max-width: 100%; display: block; }
   display: flex; align-items: center; justify-content: center;
   transition: background 0.2s;
 }
+.nav-logo-image {
+  width: 38px;
+  height: 38px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 50%;
+  border: 1px solid rgba(212, 143, 32, 0.75);
+  background: #080808;
+}
 #navbar:not(.scrolled) .nav-logo-mark { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); }
 .nav-logo-mark span { font-family: var(--font-display); font-size: 14px; font-weight: 800; color: #fff; }
 .nav-brand { font-family: var(--font-display); font-size: 17px; font-weight: 700; letter-spacing: -0.3px; color: var(--white); transition: color 0.35s; }
 #navbar.scrolled .nav-brand { color: var(--ink); }
+.nav-whatsapp {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #25d366;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.22);
+}
+@media (min-width: 768px) { .nav-whatsapp { display: inline-flex; } }
 .nav-links {
   display: none;
   align-items: center;

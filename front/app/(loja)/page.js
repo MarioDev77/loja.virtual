@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import ProductGrid from '@/components/ProductGrid';
 import { useProducts } from '@/lib/useProducts';
 
-const WPP_NUMBER = '5511999999999';
+const WPP_NUMBER = '557599173937';
 
 export default function HomePage() {
   const router = useRouter();
@@ -57,7 +57,7 @@ export default function HomePage() {
               className="btn-ghost"
             >
               <span className="iconify" data-icon="mdi:whatsapp" style={{ fontSize: 16 }} />
-              Falar no WhatsApp
+              Consultar no WhatsApp
             </a>
           </div>
         </div>

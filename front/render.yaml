@@ -1,0 +1,44 @@
+services:
+  - type: web
+    name: pitch-futebol-api
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+
+      # Preencha manualmente no dashboard do Render (Environment) —
+      # não vai nada disso no git, só os nomes das chaves ficam aqui.
+      - key: CORS_ORIGIN
+        sync: false
+      - key: VERCEL_PREVIEW_PREFIX
+        value: loja-virtual-
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_ISSUER
+        sync: false
+      - key: JWT_AUDIENCE
+        sync: false
+      - key: ADMIN_ROUTE_PREFIX
+        sync: false
+      - key: OWNERSHIP_TOKEN_SECRET
+        sync: false
+      - key: CPF_PEPPER
+        sync: false
+      - key: ADMIN_USER
+        sync: false
+      - key: ADMIN_PASS_HASH
+        sync: false
+      - key: MYSQL_URL
+        sync: false
+      # UPLOAD_DIR fica com o padrão do próprio server/uploads — no plano
+      # free do Render o disco é efêmero (reseta a cada deploy/restart),
+      # então uploads feitos pelo painel admin não sobrevivem. Detalhes
+      # e alternativas no PRODUTOS_NOVOS.md / DEPLOY_RENDER.md.
