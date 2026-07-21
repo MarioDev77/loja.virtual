@@ -36,9 +36,8 @@ export default function Navbar({ onOpenWish }) {
       <nav id="navbar" className={scrolled ? 'scrolled' : ''} role="navigation" aria-label="Navegação principal">
         <div className="nav-inner">
           <Link href="/" className="nav-logo" aria-label="Pitch Futebol — Início">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="nav-logo-image" src="/ag12-sports-logo.jpeg" alt="AG12 Sports" />
-            <span className="nav-brand">AG12 SPORTS</span>
+            <div className="nav-logo-mark"><span>P</span></div>
+            <span className="nav-brand">PITCH</span>
           </Link>
 
           <div className="nav-links" role="menubar">
@@ -50,10 +49,6 @@ export default function Navbar({ onOpenWish }) {
           </div>
 
           <div className="nav-actions">
-            <a href="https://wa.me/557599173937?text=Ol%C3%A1%21%20Quero%20consultar%20um%20produto." target="_blank" rel="noopener" className="nav-whatsapp">
-              <span className="iconify" data-icon="mdi:whatsapp" style={{ fontSize: 17 }} />
-              Consultar
-            </a>
             <button className="nav-cart-btn" onClick={onOpenWish} aria-label="Favoritos" style={{ position: 'relative' }} title="Favoritos">
               <span className="iconify" data-icon="mdi:heart-outline" style={{ fontSize: 18 }} />
               <span aria-label="favoritos salvos">{wishCount > 0 ? wishCount : ''}</span>

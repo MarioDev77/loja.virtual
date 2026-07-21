@@ -3,8 +3,8 @@ import Providers from "@/context/Providers";
 import "./globals.css";
 
 export const metadata = {
-  title: "AG12 Sports — Chuteiras & Moda",
-  description: "AG12 Sports: chuteiras Society, Futsal e Campo.",
+  title: "Pitch Futebol — Chuteiras & Moda",
+  description: "Loja especializada em chuteiras Society, Futsal e Campo.",
 };
 
 export default function RootLayout({ children }) {

@@ -7,7 +7,7 @@ import { useToast } from '@/context/ToastContext';
 import { apiRequest, productImageUrl } from '@/lib/api';
 import { brl } from '@/lib/format';
 
-const WPP_NUMBER = '557599173937';
+const WPP_NUMBER = '5511999999999';
 const IG_URL     = 'https://instagram.com/pitch.futebol';
 
 function Stars({ rating }) {

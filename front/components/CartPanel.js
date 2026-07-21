@@ -6,7 +6,7 @@ import { brl } from '@/lib/format';
 
 // Mesmos dados de contato do app.js original — centralizar aqui evita
 // duplicar a constante em vários componentes.
-const WPP_NUMBER = '557599173937';
+const WPP_NUMBER = '5511999999999';
 const WPP_BASE = `https://wa.me/${WPP_NUMBER}`;
 const IG_URL = 'https://instagram.com/pitch.futebol';
 

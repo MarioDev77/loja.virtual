@@ -23,12 +23,12 @@ export default function StoreLayout({ children }) {
       <footer>
         <p style={{ marginBottom: 6 }}>
           <strong style={{ color: 'rgba(255,255,255,0.75)', fontFamily: 'var(--font-display)', fontSize: 15, fontWeight: 700, letterSpacing: '-0.3px' }}>
-            AG12 SPORTS
+            PITCH
           </strong>
           <span style={{ margin: '0 8px', opacity: 0.3 }}>·</span>
           Chuteiras Society, Futsal e Campo · Tênis e Blusas
         </p>
-        <p>© 2026 AG12 Sports. Todos os direitos reservados.</p>
+        <p>© 2026 Pitch Futebol. Todos os direitos reservados.</p>
       </footer>
 
       <WishPanel open={wishOpen} onClose={() => setWishOpen(false)} onToast={showToast} />
