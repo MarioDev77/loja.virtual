@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAdminAuth } from '@/app/admin/layout';
 import { apiRequest, apiUpload, API_BASE } from '@/lib/api';
 import { brl } from '@/lib/format';
+import { useToast } from '@/context/ToastContext';
 
 const ADMIN_PREFIX = '/manage';
 const CATEGORIES   = ['society', 'futsal', 'campo', 'tenis', 'blusas'];
@@ -17,6 +18,7 @@ const EMPTY_FORM = {
 export default function AdminProdutosPage() {
   const router = useRouter();
   const { token, adminRequest, isAuthenticated } = useAdminAuth();
+  const showToast = useToast();
 
   const [products, setProducts] = useState([]);
   const [status,   setStatus]   = useState('loading');
@@ -27,8 +29,14 @@ export default function AdminProdutosPage() {
   const [editingId,  setEditingId]  = useState(null);
   const [formData,   setFormData]   = useState(EMPTY_FORM);
   const [imageFile,  setImageFile]  = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [saving,     setSaving]     = useState(false);
   const [formError,  setFormError]  = useState('');
+
+  // Produto marcado para exclusão — abre o modal de confirmação.
+  // null = nenhum modal aberto.
+  const [confirmDelete, setConfirmDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fileInputRef = useRef(null);
 
@@ -50,10 +58,30 @@ export default function AdminProdutosPage() {
     }
   }
 
+  // Revoga a URL de preview anterior (evita vazamento de memória) e, se um
+  // arquivo novo foi passado, cria uma URL de preview pra ele.
+  function updateImagePreview(file) {
+    setImagePreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return file ? URL.createObjectURL(file) : null;
+    });
+  }
+
+  function handleImageChange(file) {
+    setImageFile(file);
+    updateImagePreview(file);
+  }
+
+  function closeForm() {
+    updateImagePreview(null);
+    setShowForm(false);
+  }
+
   function openCreate() {
     setEditingId(null);
     setFormData(EMPTY_FORM);
     setImageFile(null);
+    updateImagePreview(null);
     setFormError('');
     setShowForm(true);
   }
@@ -73,6 +101,9 @@ export default function AdminProdutosPage() {
       is_featured: !!product.is_featured,
     });
     setImageFile(null);
+    // Ao editar, mostra a imagem atual do produto como "preview" inicial
+    // (só é substituída se o admin escolher um arquivo novo).
+    setImagePreview(product.image || null);
     setFormError('');
     setShowForm(true);
   }
@@ -107,10 +138,13 @@ export default function AdminProdutosPage() {
 
       await apiUpload(path, { method, formData: fd, token });
 
-      setShowForm(false);
+      closeForm();
+      showToast(editingId ? 'Produto atualizado com sucesso!' : 'Produto criado com sucesso!', 'success');
       loadProducts(page);
     } catch (err) {
-      setFormError(err.message || 'Erro ao salvar produto.');
+      const message = err.message || 'Erro ao salvar produto.';
+      setFormError(message);
+      showToast(message, 'error');
     } finally {
       setSaving(false);
     }
@@ -124,8 +158,28 @@ export default function AdminProdutosPage() {
       setProducts((prev) => prev.map((p) =>
         p.id === product.id ? { ...p, is_active: !p.is_active } : p
       ));
+      showToast(product.is_active ? 'Produto desativado.' : 'Produto ativado.', 'success');
     } catch (err) {
-      alert('Erro: ' + (err.message || 'Tente novamente.'));
+      showToast(err.message || 'Erro ao atualizar status. Tente novamente.', 'error');
+    }
+  }
+
+  // ─── Exclusão (com confirmação) ───────────────────────────────────────────
+  // Obs: o backend faz soft delete (is_active = 0) — mesma proteção de dados
+  // já usada em "Desativar" — mas aqui o produto some da listagem em vez de
+  // só ficar esmaecido, e exige confirmação explícita antes.
+  async function handleConfirmDelete() {
+    if (!confirmDelete) return;
+    setDeleting(true);
+    try {
+      await adminRequest(`/products/${confirmDelete.id}`, { method: 'DELETE' });
+      setProducts((prev) => prev.filter((p) => p.id !== confirmDelete.id));
+      showToast('Produto excluído com sucesso!', 'success');
+      setConfirmDelete(null);
+    } catch (err) {
+      showToast(err.message || 'Erro ao excluir produto. Tente novamente.', 'error');
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -150,7 +204,7 @@ export default function AdminProdutosPage() {
               <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 20 }}>
                 {editingId ? 'Editar produto' : 'Novo produto'}
               </h2>
-              <button onClick={() => setShowForm(false)} className="modal-close-btn" aria-label="Fechar">
+              <button onClick={closeForm} className="modal-close-btn" aria-label="Fechar">
                 <span className="iconify" data-icon="mdi:close" style={{ fontSize: 15 }} />
               </button>
             </div>
@@ -182,13 +236,22 @@ export default function AdminProdutosPage() {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp"
                     style={{ fontSize: 13 }}
-                    onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                    onChange={(e) => handleImageChange(e.target.files?.[0] || null)}
                   />
+                  {imagePreview && (
+                    <img
+                      src={imagePreview}
+                      alt="Pré-visualização"
+                      style={{ width: 96, height: 96, objectFit: 'cover', borderRadius: 10, border: '1px solid var(--border)' }}
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
+                  )}
                   {editingId && !imageFile && (
                     <p style={{ fontSize: 12, color: 'var(--muted)' }}>Deixe vazio para manter a imagem atual.</p>
                   )}
+                  <p style={{ fontSize: 12, color: 'var(--muted)' }}>JPG, PNG ou WebP — máximo 5MB.</p>
                 </div>
 
                 <div className="field-full" style={{ display: 'flex', gap: 20 }}>
@@ -205,7 +268,7 @@ export default function AdminProdutosPage() {
                 {formError && <div className="error-box field-full">{formError}</div>}
 
                 <div className="checkout-nav field-full">
-                  <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">Cancelar</button>
+                  <button type="button" onClick={closeForm} className="btn-secondary">Cancelar</button>
                   <button type="submit" className="btn-primary" disabled={saving}>
                     {saving ? 'Salvando…' : (editingId ? 'Salvar alterações' : 'Criar produto')}
                   </button>
@@ -262,6 +325,13 @@ export default function AdminProdutosPage() {
                           <button onClick={() => toggleActive(product)} className="btn-secondary" style={{ fontSize: 12, padding: '4px 10px' }}>
                             {product.is_active ? 'Desativar' : 'Ativar'}
                           </button>
+                          <button
+                            onClick={() => setConfirmDelete({ id: product.id, name: product.name })}
+                            className="btn-secondary"
+                            style={{ fontSize: 12, padding: '4px 10px', color: 'var(--red, #ef4444)' }}
+                          >
+                            Excluir
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -280,6 +350,42 @@ export default function AdminProdutosPage() {
             )}
           </div>
         </>
+      )}
+
+      {/* Modal de confirmação de exclusão */}
+      {confirmDelete && (
+        <div className="modal-overlay open" role="dialog" aria-modal="true" aria-label="Confirmar exclusão">
+          <div className="modal-content" style={{ maxWidth: 420 }}>
+            <div style={{ padding: 28 }}>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, marginBottom: 12 }}>
+                Excluir produto?
+              </h2>
+              <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 24 }}>
+                Tem certeza que deseja excluir <strong>{confirmDelete.name}</strong>? Ele deixará de
+                aparecer na loja. Essa ação não pode ser desfeita por aqui.
+              </p>
+              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  onClick={() => setConfirmDelete(null)}
+                  className="btn-secondary"
+                  disabled={deleting}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmDelete}
+                  className="btn-primary"
+                  style={{ background: 'var(--red, #ef4444)', borderColor: 'var(--red, #ef4444)' }}
+                  disabled={deleting}
+                >
+                  {deleting ? 'Excluindo…' : 'Excluir'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
