@@ -107,13 +107,25 @@ router.get('/products', async (req, res, next) => {
     const offset = (page - 1) * limit;
     const [rows] = await pool.query(
       `SELECT p.id, p.name, p.brand, c.slug AS category, p.price, p.old_price,
-              p.image_url, p.stock_qty, p.is_active, p.is_featured
+              p.image_url, p.description AS \`desc\`, p.sizes_json, p.stock_qty,
+              p.is_active, p.is_featured
        FROM products p
        INNER JOIN categories c ON c.id = p.category_id
        ORDER BY p.id DESC LIMIT ? OFFSET ?`,
       [limit, offset]
     );
-    return res.json({ products: rows });
+    // sizes_json vem como string do banco — o front espera um array pronto
+    // pra usar em `.join(', ')` no formulário de edição.
+    const products = rows.map((r) => {
+      let sizes = [];
+      try {
+        sizes = JSON.parse(r.sizes_json || '[]');
+        if (!Array.isArray(sizes)) sizes = [];
+      } catch { sizes = []; }
+      const { sizes_json, ...rest } = r;
+      return { ...rest, sizes };
+    });
+    return res.json({ products });
   } catch (err) { return next(err); }
 });
 
