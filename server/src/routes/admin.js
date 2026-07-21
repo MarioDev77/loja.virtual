@@ -23,16 +23,24 @@ const router = express.Router();
 router.use(authJwt, requireRole('admin'));
 
 // ─── Schemas ──────────────────────────────────────────────────────────────────
+const ProductImageUrlSchema = z.string().max(500).refine(
+  (value) => value.startsWith('/uploads/') || value.startsWith('/seed-images/') || /^https?:\/\//i.test(value),
+  'Invalid image URL'
+);
+
 const ProductSchema = z.object({
   name: z.string().min(2).max(200),
-  brand: z.string().min(1).max(80),
-  category: z.enum(['society', 'futsal', 'campo', 'tenis', 'blusas']),
+  // Na criação, somente nome, preço e imagem são necessários. Defaults
+  // preservam a compatibilidade com as colunas NOT NULL do banco.
+  brand: z.string().max(80).optional().default(''),
+  category: z.enum(['society', 'futsal', 'campo', 'tenis', 'blusas']).optional().default('society'),
   price: z.number().positive(),
   old_price: z.number().positive().nullable().optional(),
   // image_url: opcional quando há upload de arquivo
-  image_url: z.string().url().max(500).optional(),
-  description: z.string().min(1).max(2000),
-  sizes_json: z.array(z.union([z.string(), z.number()])).min(1),
+  // Uploads internos são caminhos relativos; z.string().url() os rejeitaria.
+  image_url: ProductImageUrlSchema.optional(),
+  description: z.string().max(2000).optional().default(''),
+  sizes_json: z.array(z.union([z.string(), z.number()])).optional().default([]),
   stock_qty: z.number().int().min(0).optional().default(0),
   is_active: z.boolean().optional().default(true),
   is_featured: z.boolean().optional().default(false),
@@ -122,8 +130,15 @@ router.get('/products', async (req, res, next) => {
         sizes = JSON.parse(r.sizes_json || '[]');
         if (!Array.isArray(sizes)) sizes = [];
       } catch { sizes = []; }
-      const { sizes_json, ...rest } = r;
-      return { ...rest, sizes };
+      // A vitrine usa os nomes image/oldPrice. Manter esse formato também no
+      // admin evita previews vazios e campos de edição sem o preço antigo.
+      const { sizes_json, image_url, old_price, ...rest } = r;
+      return {
+        ...rest,
+        image: image_url || '',
+        oldPrice: old_price == null ? null : Number(old_price),
+        sizes,
+      };
     });
     return res.json({ products });
   } catch (err) { return next(err); }
@@ -221,6 +236,15 @@ router.patch('/products/:id', (req, res, next) => {
       const fields = [];
       const values = [];
 
+      // Busca a imagem antiga antes do UPDATE. Fazê-lo depois encontra a
+      // imagem recém-enviada e a apaga do disco.
+      let previousImageUrl = null;
+      if (imageUrl) {
+        const [[current]] = await pool.query('SELECT image_url FROM products WHERE id = ?', [id]);
+        if (!current) return res.status(404).json({ error: 'Not found' });
+        previousImageUrl = current.image_url;
+      }
+
       if (d.name !== undefined)        { fields.push('name = ?');        values.push(d.name); }
       if (d.brand !== undefined)       { fields.push('brand = ?');       values.push(d.brand); }
       if (d.category !== undefined)    { fields.push('category_id = ?'); values.push(await resolveCategoryId(d.category)); }
@@ -250,9 +274,8 @@ router.patch('/products/:id', (req, res, next) => {
 
       // Se subiu nova imagem, apaga a antiga do disco
       if (imageUrl) {
-        const [[old]] = await pool.query('SELECT image_url FROM products WHERE id = ?', [id]);
-        if (old?.image_url?.startsWith('/uploads/')) {
-          const oldPath = path.join(UPLOAD_DIR, path.basename(old.image_url));
+        if (previousImageUrl?.startsWith('/uploads/') && previousImageUrl !== imageUrl) {
+          const oldPath = path.join(UPLOAD_DIR, path.basename(previousImageUrl));
           fs.unlink(oldPath, () => {}); // silencia erros
         }
 
