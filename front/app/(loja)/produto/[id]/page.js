@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useWish } from '@/context/WishContext';
 import { useToast } from '@/context/ToastContext';
-import { apiRequest } from '@/lib/api';
+import { apiRequest, productImageUrl } from '@/lib/api';
 import { brl } from '@/lib/format';
 
 const WPP_NUMBER = '5511999999999';
@@ -117,7 +117,7 @@ export default function ProdutoPage() {
         <div className="modal-img" style={{ borderRadius: 16, overflow: 'hidden', background: 'var(--surface)', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={product.image || ''}
+            src={productImageUrl(product.image)}
             alt={product.name || 'Produto'}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />

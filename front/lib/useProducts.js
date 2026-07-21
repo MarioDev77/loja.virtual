@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { apiRequest, API_BASE } from '@/lib/api';
+import { apiRequest } from '@/lib/api';
 
 const PAGE_LIMIT = 12;
 
@@ -20,9 +20,7 @@ function buildQuery(params) {
  * desativados), aceitando só caminhos relativos (/uploads, /seed-images)
  * ou a própria origem da API.
  */
-function hasValidImage(p) {
-  return !!(p.image && (p.image.startsWith('/') || p.image.startsWith(API_BASE.replace(/\/api$/, ''))));
-}
+function hasValidImage(p) { return Boolean(p.image); }
 
 /**
  * useProducts — réplica de loadProducts/loadMore/buildQuery do front

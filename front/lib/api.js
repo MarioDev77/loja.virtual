@@ -17,6 +17,14 @@
 export const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE || 'https://lojavirtual-production-2708.up.railway.app/api';
 
+// Resolve caminhos relativos da API para o host correto das imagens.
+export function productImageUrl(image) {
+  if (!image) return '';
+  if (/^(https?:|blob:|data:)/i.test(image)) return image;
+  const apiOrigin = API_BASE.replace(/\/api\/?$/, '');
+  return image.startsWith('/') ? `${apiOrigin}${image}` : `${apiOrigin}/${image}`;
+}
+
 export class ApiError extends Error {
   constructor(message, status) {
     super(message);

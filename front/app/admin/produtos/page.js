@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuth } from '@/app/admin/layout';
-import { apiRequest, apiUpload, API_BASE } from '@/lib/api';
+import { apiUpload, productImageUrl } from '@/lib/api';
 import { brl } from '@/lib/format';
 import { useToast } from '@/context/ToastContext';
 
@@ -103,7 +103,7 @@ export default function AdminProdutosPage() {
     setImageFile(null);
     // Ao editar, mostra a imagem atual do produto como "preview" inicial
     // (só é substituída se o admin escolher um arquivo novo).
-    setImagePreview(product.image || null);
+    setImagePreview(productImageUrl(product.image) || null);
     setFormError('');
     setShowForm(true);
   }
@@ -115,6 +115,11 @@ export default function AdminProdutosPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     setFormError('');
+
+    if (!imageFile && (!editingId || !imagePreview)) {
+      setFormError('Selecione uma foto para criar o produto.');
+      return;
+    }
     setSaving(true);
 
     try {
@@ -211,7 +216,7 @@ export default function AdminProdutosPage() {
             <form onSubmit={handleSubmit} style={{ padding: 28 }}>
               <div className="checkout-form-grid">
                 <input type="text" placeholder="Nome do produto" className="field-input" required value={formData.name} onChange={(e) => handleFieldChange('name', e.target.value)} />
-                <input type="text" placeholder="Marca" className="field-input" required value={formData.brand} onChange={(e) => handleFieldChange('brand', e.target.value)} />
+                <input type="text" placeholder="Marca (opcional)" className="field-input" value={formData.brand} onChange={(e) => handleFieldChange('brand', e.target.value)} />
 
                 <select className="sort-select field-input" value={formData.category} onChange={(e) => handleFieldChange('category', e.target.value)}>
                   {CATEGORIES.map((c) => <option key={c} value={c} style={{ textTransform: 'capitalize' }}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
@@ -232,11 +237,12 @@ export default function AdminProdutosPage() {
                 />
 
                 <div className="field-full" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <label style={{ fontSize: 13, color: 'var(--muted)' }}>Imagem do produto</label>
+                  <label style={{ fontSize: 13, color: 'var(--muted)' }}>Imagem do produto {editingId ? '(opcional)' : '*'}</label>
                   <input
                     ref={fileInputRef}
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
+                    required={!editingId}
                     style={{ fontSize: 13 }}
                     onChange={(e) => handleImageChange(e.target.files?.[0] || null)}
                   />
@@ -303,7 +309,7 @@ export default function AdminProdutosPage() {
                     <tr key={product.id} style={{ borderBottom: '1px solid var(--border)', opacity: product.is_active ? 1 : 0.5 }}>
                       <td style={{ padding: '10px 16px' }}>
                         {product.image
-                          ? <img src={product.image} alt={product.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 8 }} />
+                          ? <img src={productImageUrl(product.image)} alt={product.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 8 }} />
                           : <div style={{ width: 48, height: 48, borderRadius: 8, background: 'var(--border)' }} />
                         }
                       </td>

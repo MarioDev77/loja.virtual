@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useWish } from '@/context/WishContext';
 import { brl } from '@/lib/format';
+import { productImageUrl } from '@/lib/api';
 
 /**
  * ProductCard — réplica de renderProductCard() em front/assets/app.js.
@@ -43,7 +44,7 @@ export default function ProductCard({ product, onToast }) {
           {wished ? '♥' : '♡'}
         </button>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={product.image || ''} alt={product.name || 'Produto'} loading="lazy" />
+        <img src={productImageUrl(product.image)} alt={product.name || 'Produto'} loading="lazy" />
       </div>
       <div className="body">
         <span className="brand">{product.brand || ''}</span>
