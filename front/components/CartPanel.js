@@ -20,7 +20,7 @@ export default function CartPanel({ open, onClose }) {
   const { items, subtotal, updateQty, removeFromCart } = useCart();
 
   const totalQty = items.reduce((s, i) => s + i.qty, 0);
-  const wppText = encodeURIComponent('Olá! Gostaria de finalizar minha compra na Pitch Futebol.');
+  const wppText = encodeURIComponent('Olá! Gostaria de finalizar minha compra na AG12 Sports.');
 
   function handleCheckout() {
     onClose();
@@ -36,7 +36,7 @@ export default function CartPanel({ open, onClose }) {
             <h3>{totalQty} {totalQty === 1 ? 'item' : 'itens'}</h3>
           </div>
           <button className="cart-close-btn" onClick={onClose} aria-label="Fechar carrinho">
-            <span className="iconify" data-icon="mdi:close" style={{ fontSize: 16 }} />
+            <iconify-icon className="iconify" icon="mdi:close" style={{ fontSize: 16 }} />
           </button>
         </div>
 
@@ -84,7 +84,7 @@ export default function CartPanel({ open, onClose }) {
                 rel="noopener"
                 style={{ fontSize: 13, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}
               >
-                <span className="iconify" data-icon="mdi:whatsapp" /> WhatsApp
+                <iconify-icon className="iconify" icon="mdi:whatsapp" /> WhatsApp
               </a>
               <a
                 href={IG_URL}
@@ -92,7 +92,7 @@ export default function CartPanel({ open, onClose }) {
                 rel="noopener"
                 style={{ fontSize: 13, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}
               >
-                <span className="iconify" data-icon="mdi:instagram" /> Instagram
+                <iconify-icon className="iconify" icon="mdi:instagram" /> Instagram
               </a>
             </div>
           </div>

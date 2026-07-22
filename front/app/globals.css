@@ -134,8 +134,10 @@ img { max-width: 100%; display: block; }
 .nav-logo-mark {
   width: 34px; height: 34px;
   background: var(--ink);
-  border-radius: 8px;
+  border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
+  object-fit: cover;
+  flex-shrink: 0;
   transition: background 0.2s;
 }
 #navbar:not(.scrolled) .nav-logo-mark { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); }
@@ -419,7 +421,7 @@ img { max-width: 100%; display: block; }
   color: rgba(255,255,255,0.6);
   letter-spacing: 0.02em;
 }
-.trust-item span.iconify { color: var(--amber); font-size: 15px; }
+.trust-item .iconify { color: var(--amber); font-size: 15px; }
 
 /* ─── Products Section ──────────────────────────────────────── */
 #productsSection {

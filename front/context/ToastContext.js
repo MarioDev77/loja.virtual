@@ -35,9 +35,9 @@ export function ToastProvider({ children }) {
         createPortal(
           toasts.map((t) => (
             <div className={`toast ${t.type}`} key={t.id}>
-              <span
+              <iconify-icon
                 className="iconify text-lg flex-shrink-0"
-                data-icon={
+                icon={
                   t.type === 'success' ? 'mdi:check-circle' : t.type === 'error' ? 'mdi:alert-circle' : 'mdi:information'
                 }
               />

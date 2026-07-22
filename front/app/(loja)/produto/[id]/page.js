@@ -73,7 +73,7 @@ export default function ProdutoPage() {
   if (loading) {
     return (
       <div style={{ paddingTop: 120, textAlign: 'center', color: 'var(--muted)' }}>
-        <span className="iconify" data-icon="mdi:loading" style={{ fontSize: 36, animation: 'spin 1s linear infinite' }} />
+        <iconify-icon className="iconify" icon="mdi:loading" style={{ fontSize: 36, animation: 'spin 1s linear infinite' }} />
         <p style={{ marginTop: 12 }}>Carregando produto…</p>
       </div>
     );
@@ -82,7 +82,7 @@ export default function ProdutoPage() {
   if (error || !product) {
     return (
       <div style={{ paddingTop: 120, textAlign: 'center' }}>
-        <span className="iconify" data-icon="mdi:alert-circle-outline" style={{ fontSize: 48, color: 'var(--muted)' }} />
+        <iconify-icon className="iconify" icon="mdi:alert-circle-outline" style={{ fontSize: 48, color: 'var(--muted)' }} />
         <h2 style={{ marginTop: 16 }}>Produto não encontrado</h2>
         <p style={{ color: 'var(--muted)', marginTop: 8 }}>{error}</p>
         <button className="btn-primary" style={{ marginTop: 20 }} onClick={() => router.back()}>
@@ -161,7 +161,7 @@ export default function ProdutoPage() {
           {/* Ações */}
           <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 20 }}>
             <button onClick={handleWish} className="btn-primary" style={{ flex: 1, justifyContent: 'center' }}>
-              <span className="iconify" data-icon={wished ? 'mdi:heart' : 'mdi:heart-outline'} style={{ fontSize: 16 }} />
+              <iconify-icon className="iconify" icon={wished ? 'mdi:heart' : 'mdi:heart-outline'} style={{ fontSize: 16 }} />
               {wished ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
             </button>
           </div>
@@ -169,10 +169,10 @@ export default function ProdutoPage() {
           {/* Links */}
           <div className="modal-links">
             <a href={wppLink} target="_blank" rel="noopener" className="modal-link">
-              <span className="iconify" data-icon="mdi:whatsapp" /> WhatsApp
+              <iconify-icon className="iconify" icon="mdi:whatsapp" /> WhatsApp
             </a>
             <a href={IG_URL} target="_blank" rel="noopener" className="modal-link">
-              <span className="iconify" data-icon="mdi:instagram" /> Instagram
+              <iconify-icon className="iconify" icon="mdi:instagram" /> Instagram
             </a>
           </div>
 

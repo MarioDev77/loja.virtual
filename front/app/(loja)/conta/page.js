@@ -199,7 +199,7 @@ export default function ContaPage() {
 
         {wishIds.length === 0 && (
           <div id="emptyState" role="status">
-            <span className="iconify" data-icon="mdi:heart-outline" style={{ fontSize: 36, color: 'var(--muted)', marginBottom: 12 }} />
+            <iconify-icon className="iconify" icon="mdi:heart-outline" style={{ fontSize: 36, color: 'var(--muted)', marginBottom: 12 }} />
             <h3>Nenhum favorito ainda</h3>
             <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 6 }}>Clique no ♡ de um produto para salvá-lo aqui.</p>
           </div>

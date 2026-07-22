@@ -73,8 +73,8 @@ export default function AdminLayout({ children }) {
         }}>
           <div style={{ padding: '0 20px 24px', borderBottom: '1px solid var(--border)', marginBottom: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div className="nav-logo-mark" style={{ width: 32, height: 32 }}><span>P</span></div>
-              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 16, letterSpacing: '-0.5px' }}>PITCH</span>
+              <img src="/ag12-sports-logo.jpeg" alt="AG12 Sports" className="nav-logo-mark" style={{ width: 32, height: 32 }} />
+              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 16, letterSpacing: '-0.5px' }}>AG12 SPORTS</span>
             </div>
             <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 6, textTransform: 'uppercase', letterSpacing: '0.2em' }}>Admin</p>
           </div>
@@ -101,7 +101,7 @@ export default function AdminLayout({ children }) {
                     transition: 'all 0.15s',
                   }}
                 >
-                  <span className="iconify" data-icon={item.icon} style={{ fontSize: 18 }} />
+                  <iconify-icon className="iconify" icon={item.icon} style={{ fontSize: 18 }} />
                   {item.label}
                 </Link>
               );

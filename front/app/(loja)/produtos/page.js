@@ -73,7 +73,7 @@ function ProdutosContent() {
 
         <div className="catalog-controls">
           <form className="search-bar" role="search" onSubmit={handleSearchSubmit}>
-            <span className="search-icon iconify" data-icon="mdi:magnify" aria-hidden="true" />
+            <iconify-icon className="search-icon iconify" icon="mdi:magnify" aria-hidden="true" />
             <input
               type="search"
               placeholder="Buscar produto…"

@@ -43,8 +43,8 @@ export default function AdminLoginPage() {
       <div style={{ background: 'var(--surface)', borderRadius: 24, boxShadow: '0 8px 40px rgba(0,0,0,0.12)', padding: '40px 36px', width: '100%', maxWidth: 440 }}>
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-            <div className="nav-logo-mark"><span>P</span></div>
-            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20 }}>PITCH</span>
+            <img src="/ag12-sports-logo.jpeg" alt="AG12 Sports" className="nav-logo-mark" />
+            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20 }}>AG12 SPORTS</span>
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 4 }}>Painel Admin</h1>
           <p style={{ fontSize: 13, color: 'var(--muted)' }}>Área reservada. Apenas pessoal autorizado.</p>

@@ -20,7 +20,7 @@ export default function ProductGrid({ status, products, errorMessage, hasMore, i
   if (status === 'error') {
     return (
       <div role="alert" id="errorState">
-        <span className="iconify" data-icon="mdi:wifi-off" style={{ fontSize: 36, color: 'var(--muted)', marginBottom: 12 }} />
+        <iconify-icon className="iconify" icon="mdi:wifi-off" style={{ fontSize: 36, color: 'var(--muted)', marginBottom: 12 }} />
         <h3>Não foi possível carregar</h3>
         <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 6, marginBottom: 20 }}>{errorMessage}</p>
         <button className="btn-primary" onClick={onRetry}>Tentar novamente</button>
@@ -31,7 +31,7 @@ export default function ProductGrid({ status, products, errorMessage, hasMore, i
   if (status === 'empty') {
     return (
       <div role="status" id="emptyState">
-        <span className="iconify" data-icon="mdi:package-variant-closed-remove" style={{ fontSize: 36, color: 'var(--muted)', marginBottom: 12 }} />
+        <iconify-icon className="iconify" icon="mdi:package-variant-closed-remove" style={{ fontSize: 36, color: 'var(--muted)', marginBottom: 12 }} />
         <h3>Nenhum produto encontrado</h3>
         <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 6 }}>Tente outros termos de busca ou explore as categorias.</p>
       </div>

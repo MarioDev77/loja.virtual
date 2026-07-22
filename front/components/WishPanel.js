@@ -26,7 +26,7 @@ export default function WishPanel({ open, onClose, onToast }) {
             <h3>{ids.length} {ids.length === 1 ? 'item' : 'itens'}</h3>
           </div>
           <button className="cart-close-btn" onClick={onClose} aria-label="Fechar favoritos">
-            <span className="iconify" data-icon="mdi:close" style={{ fontSize: 16 }} />
+            <iconify-icon className="iconify" icon="mdi:close" style={{ fontSize: 16 }} />
           </button>
         </div>
 

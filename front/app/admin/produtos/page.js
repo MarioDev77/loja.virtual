@@ -196,7 +196,7 @@ export default function AdminProdutosPage() {
           <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 4 }}>Gerencie o catálogo da loja.</p>
         </div>
         <button onClick={openCreate} className="btn-primary" style={{ fontSize: 13 }}>
-          <span className="iconify" data-icon="mdi:plus" style={{ fontSize: 18 }} />
+          <iconify-icon className="iconify" icon="mdi:plus" style={{ fontSize: 18 }} />
           Novo produto
         </button>
       </div>
@@ -210,7 +210,7 @@ export default function AdminProdutosPage() {
                 {editingId ? 'Editar produto' : 'Novo produto'}
               </h2>
               <button onClick={closeForm} className="modal-close-btn" aria-label="Fechar">
-                <span className="iconify" data-icon="mdi:close" style={{ fontSize: 15 }} />
+                <iconify-icon className="iconify" icon="mdi:close" style={{ fontSize: 15 }} />
               </button>
             </div>
             <form onSubmit={handleSubmit} style={{ padding: 28 }}>

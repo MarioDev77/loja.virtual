@@ -35,9 +35,9 @@ export default function Navbar({ onOpenWish }) {
     <>
       <nav id="navbar" className={scrolled ? 'scrolled' : ''} role="navigation" aria-label="Navegação principal">
         <div className="nav-inner">
-          <Link href="/" className="nav-logo" aria-label="Pitch Futebol — Início">
-            <div className="nav-logo-mark"><span>P</span></div>
-            <span className="nav-brand">PITCH</span>
+          <Link href="/" className="nav-logo" aria-label="AG12 Sports — Início">
+            <img src="/ag12-sports-logo.jpeg" alt="AG12 Sports" className="nav-logo-mark" />
+            <span className="nav-brand">AG12 SPORTS</span>
           </Link>
 
           <div className="nav-links" role="menubar">
@@ -50,7 +50,7 @@ export default function Navbar({ onOpenWish }) {
 
           <div className="nav-actions">
             <button className="nav-cart-btn" onClick={onOpenWish} aria-label="Favoritos" style={{ position: 'relative' }} title="Favoritos">
-              <span className="iconify" data-icon="mdi:heart-outline" style={{ fontSize: 18 }} />
+              <iconify-icon className="iconify" icon="mdi:heart-outline" style={{ fontSize: 18 }} />
               <span aria-label="favoritos salvos">{wishCount > 0 ? wishCount : ''}</span>
             </button>
             <button
@@ -59,7 +59,7 @@ export default function Navbar({ onOpenWish }) {
               aria-label="Abrir menu"
               aria-expanded={mobileOpen}
             >
-              <span className="iconify" data-icon="mdi:menu" style={{ fontSize: 20 }} />
+              <iconify-icon className="iconify" icon="mdi:menu" style={{ fontSize: 20 }} />
             </button>
           </div>
         </div>
@@ -71,7 +71,7 @@ export default function Navbar({ onOpenWish }) {
           <div className="mobile-header">
             <span className="mobile-title">Menu</span>
             <button className="mobile-close" onClick={() => setMobileOpen(false)} aria-label="Fechar menu">
-              <span className="iconify" data-icon="mdi:close" style={{ fontSize: 18 }} />
+              <iconify-icon className="iconify" icon="mdi:close" style={{ fontSize: 18 }} />
             </button>
           </div>
           {CATEGORIES.map((c) => (

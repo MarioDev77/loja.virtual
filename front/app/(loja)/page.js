@@ -28,7 +28,7 @@ export default function HomePage() {
         <div className="hero-bg">
           <Image
             src="/assets/img/hero.webp"
-            alt="Estoque de chuteiras Pitch Futebol"
+            alt="Estoque de chuteiras AG12 Sports"
             fill
             priority
             sizes="100vw"
@@ -47,7 +47,7 @@ export default function HomePage() {
           </p>
           <div className="hero-actions anim-fade-up-4">
             <a href="#productsSection" className="btn-primary">
-              <span className="iconify" data-icon="mdi:shoe-cleat" style={{ fontSize: 16 }} />
+              <iconify-icon className="iconify" icon="mdi:shoe-cleat" style={{ fontSize: 16 }} />
               Ver catálogo
             </a>
             <a
@@ -56,7 +56,7 @@ export default function HomePage() {
               rel="noopener"
               className="btn-ghost"
             >
-              <span className="iconify" data-icon="mdi:whatsapp" style={{ fontSize: 16 }} />
+              <iconify-icon className="iconify" icon="mdi:whatsapp" style={{ fontSize: 16 }} />
               Falar no WhatsApp
             </a>
           </div>
@@ -72,19 +72,19 @@ export default function HomePage() {
       <div id="trustBar" aria-label="Diferenciais">
         <div className="trust-inner">
           <div className="trust-item">
-            <span className="iconify" data-icon="mdi:shield-check-outline" />
+            <iconify-icon className="iconify" icon="mdi:shield-check-outline" />
             Compra segura e garantida
           </div>
           <div className="trust-item">
-            <span className="iconify" data-icon="mdi:truck-fast-outline" />
+            <iconify-icon className="iconify" icon="mdi:truck-fast-outline" />
             Entrega para todo o Brasil
           </div>
           <div className="trust-item">
-            <span className="iconify" data-icon="mdi:storefront-outline" />
+            <iconify-icon className="iconify" icon="mdi:storefront-outline" />
             Loja física e online
           </div>
           <div className="trust-item">
-            <span className="iconify" data-icon="mdi:headset" />
+            <iconify-icon className="iconify" icon="mdi:headset" />
             Atendimento especializado
           </div>
         </div>
@@ -102,7 +102,7 @@ export default function HomePage() {
 
           <div className="catalog-controls">
             <form className="search-bar" role="search" onSubmit={handleSearchSubmit}>
-              <span className="search-icon iconify" data-icon="mdi:magnify" aria-hidden="true" />
+              <iconify-icon className="search-icon iconify" icon="mdi:magnify" aria-hidden="true" />
               <input
                 type="search"
                 placeholder="Buscar produto…"

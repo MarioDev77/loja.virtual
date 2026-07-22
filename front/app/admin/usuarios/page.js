@@ -62,7 +62,7 @@ export default function AdminUsuariosPage() {
           <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 4 }}>Gerencie os cadastros de clientes e admins.</p>
         </div>
         <button onClick={() => load(page)} className="btn-secondary" style={{ fontSize: 13 }}>
-          <span className="iconify" data-icon="mdi:refresh" style={{ fontSize: 16 }} />
+          <iconify-icon className="iconify" icon="mdi:refresh" style={{ fontSize: 16 }} />
           Atualizar
         </button>
       </div>
