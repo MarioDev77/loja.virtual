@@ -6,9 +6,9 @@ import { brl } from '@/lib/format';
 
 // Mesmos dados de contato do app.js original — centralizar aqui evita
 // duplicar a constante em vários componentes.
-const WPP_NUMBER = '5511999999999';
+const WPP_NUMBER = '557598756510';
 const WPP_BASE = `https://wa.me/${WPP_NUMBER}`;
-const IG_URL = 'https://instagram.com/pitch.futebol';
+const IG_URL = 'https://www.instagram.com/ag12sports/';
 
 /**
  * CartPanel — réplica do #cartOverlay/.cart-panel do index.html, com a

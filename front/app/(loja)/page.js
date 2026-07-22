@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import ProductGrid from '@/components/ProductGrid';
 import { useProducts } from '@/lib/useProducts';
 
-const WPP_NUMBER = '5511999999999';
+const WPP_NUMBER = '557598756510';
 
 export default function HomePage() {
   const router = useRouter();

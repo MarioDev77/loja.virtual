@@ -7,8 +7,8 @@ import { useToast } from '@/context/ToastContext';
 import { apiRequest, productImageUrl } from '@/lib/api';
 import { brl } from '@/lib/format';
 
-const WPP_NUMBER = '5511999999999';
-const IG_URL     = 'https://instagram.com/pitch.futebol';
+const WPP_NUMBER = '557598756510';
+const IG_URL     = 'https://www.instagram.com/ag12sports/';
 
 function Stars({ rating }) {
   return (
@@ -42,8 +42,16 @@ export default function ProdutoPage() {
     setError('');
     apiRequest(`/products/${id}`)
       .then((data) => {
-        setProduct(data.product);
-        setSelectedSize((data.product?.sizes && data.product.sizes[0]) || null);
+        // A API pode devolver { product: {...} } ou o produto direto na raiz,
+        // dependendo da versão publicada no backend — cobre os dois formatos.
+        const p = (data && data.product) ? data.product : data;
+        if (!p || !p.id) {
+          setError('Produto não encontrado.');
+          setProduct(null);
+          return;
+        }
+        setProduct(p);
+        setSelectedSize((p.sizes && p.sizes[0]) || null);
       })
       .catch((err) => setError(err.message || 'Produto não encontrado.'))
       .finally(() => setLoading(false));
