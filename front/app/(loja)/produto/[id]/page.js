@@ -42,8 +42,8 @@ export default function ProdutoPage() {
     setError('');
     apiRequest(`/products/${id}`)
       .then((data) => {
-        setProduct(data);
-        setSelectedSize((data.sizes && data.sizes[0]) || null);
+        setProduct(data.product);
+        setSelectedSize((data.product?.sizes && data.product.sizes[0]) || null);
       })
       .catch((err) => setError(err.message || 'Produto não encontrado.'))
       .finally(() => setLoading(false));
