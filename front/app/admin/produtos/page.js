@@ -97,7 +97,7 @@ export default function AdminProdutosPage() {
       description: product.desc || '',
       sizes:       (product.sizes || []).join(', '),
       stock_qty:   product.stock_qty ?? 0,
-      is_active:   product.is_active !== false,
+      is_active:   product.is_active === undefined ? true : Boolean(product.is_active),
       is_featured: !!product.is_featured,
     });
     setImageFile(null);

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useWish } from '@/context/WishContext';
 import { brl } from '@/lib/format';
+import { productImageUrl } from '@/lib/api';
 
 /**
  * WishPanel — réplica do #wishOverlay/.cart-panel do index.html, com a
@@ -43,7 +44,7 @@ export default function WishPanel({ open, onClose, onToast }) {
             return (
               <div className="cart-line-item" key={id}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={(p && p.image) || ''} alt={(p && p.name) || 'Produto'} loading="lazy" />
+                <img src={(p && productImageUrl(p.image)) || ''} alt={(p && p.name) || 'Produto'} loading="lazy" />
                 <div className="cart-line-info">
                   <div className="name">{(p && p.name) || `Produto #${id}`}</div>
                   <div className="meta">{(p && p.brand) || ''}</div>
