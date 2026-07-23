@@ -274,11 +274,18 @@ router.patch('/products/:id', (req, res, next) => {
         return res.status(400).json({ error: 'No fields to update' });
 
       values.push(id);
+      console.log('DEBUG PATCH /products/:id — SQL:', `UPDATE products SET ${fields.join(', ')} WHERE id = ?`);
+      console.log('DEBUG PATCH /products/:id — values:', JSON.stringify(values));
       const [result] = await pool.execute(
         `UPDATE products SET ${fields.join(', ')} WHERE id = ?`, values
       );
+      console.log('DEBUG PATCH /products/:id — result.affectedRows:', result.affectedRows, 'result.changedRows:', result.changedRows);
       if (result.affectedRows === 0)
         return res.status(404).json({ error: 'Not found' });
+
+      // DEBUG TEMPORÁRIO — confere o que ficou gravado de fato
+      const [[checkRow]] = await pool.query('SELECT sizes_json, stock_qty FROM products WHERE id = ?', [id]);
+      console.log('DEBUG PATCH /products/:id — releitura pós-UPDATE:', JSON.stringify(checkRow));
 
       // Se subiu nova imagem, apaga a antiga do disco
       if (imageUrl) {
