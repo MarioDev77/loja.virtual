@@ -49,6 +49,16 @@ export default function ProductCard({ product, onToast }) {
       <div className="body">
         <span className="brand">{product.brand || ''}</span>
         <h3 className="name">{product.name || ''}</h3>
+        {Array.isArray(product.sizes) && product.sizes.length > 0 && (
+          <div className="card-sizes" aria-label="Tamanhos disponíveis">
+            {product.sizes.slice(0, 4).map((size) => (
+              <span key={size} className="card-size-chip">{size}</span>
+            ))}
+            {product.sizes.length > 4 && (
+              <span className="card-sizes-more">+{product.sizes.length - 4}</span>
+            )}
+          </div>
+        )}
         <div className="price-row">
           {hasDiscount && <span className="price-old">{brl(product.oldPrice)}</span>}
           <span className="price-now">{brl(product.price)}</span>

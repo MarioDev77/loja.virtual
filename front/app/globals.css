@@ -779,6 +779,16 @@ img { max-width: 100%; display: block; }
 }
 .size-btn:hover { border-color: var(--amber); color: var(--amber-dk); }
 .size-btn.selected { background: var(--ink); border-color: var(--ink); color: #fff; }
+.card-sizes { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 4px; }
+.card-size-chip {
+  font-size: 10.5px; font-weight: 600;
+  padding: 2px 7px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.card-sizes-more { font-size: 10.5px; color: var(--muted); align-self: center; }
 .qty-row { display: flex; align-items: center; gap: 12px; }
 .qty-btn {
   width: 40px; height: 40px;
