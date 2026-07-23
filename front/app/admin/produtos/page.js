@@ -24,6 +24,7 @@ export default function AdminProdutosPage() {
   const [status,   setStatus]   = useState('loading');
   const [page,     setPage]     = useState(1);
   const [hasMore,  setHasMore]  = useState(false);
+  const [showInactive, setShowInactive] = useState(false);
 
   const [showForm,   setShowForm]   = useState(false);
   const [editingId,  setEditingId]  = useState(null);
@@ -188,6 +189,8 @@ export default function AdminProdutosPage() {
     }
   }
 
+  const visibleProducts = showInactive ? products : products.filter((p) => p.is_active);
+
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32 }}>
@@ -291,6 +294,12 @@ export default function AdminProdutosPage() {
 
       {status === 'ready' && (
         <>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--muted)', cursor: 'pointer' }}>
+              <input type="checkbox" checked={showInactive} onChange={(e) => setShowInactive(e.target.checked)} />
+              Mostrar inativos/excluídos
+            </label>
+          </div>
           <div style={{ background: 'var(--surface)', borderRadius: 20, border: '1px solid var(--border)', overflow: 'hidden' }}>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -302,10 +311,10 @@ export default function AdminProdutosPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {!products.length && (
+                  {!visibleProducts.length && (
                     <tr><td colSpan={8} style={{ padding: 24, textAlign: 'center', color: 'var(--muted)' }}>Nenhum produto encontrado.</td></tr>
                   )}
-                  {products.map((product) => (
+                  {visibleProducts.map((product) => (
                     <tr key={product.id} style={{ borderBottom: '1px solid var(--border)', opacity: product.is_active ? 1 : 0.5 }}>
                       <td style={{ padding: '10px 16px' }}>
                         {product.image
