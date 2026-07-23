@@ -228,9 +228,17 @@ router.patch('/products/:id', (req, res, next) => {
         : req.body;
       if (imageUrl) rawBody.image_url = imageUrl;
 
+      // DEBUG TEMPORÁRIO — remover depois de achar o bug do sizes_json
+      console.log('DEBUG PATCH /products/:id — content-type:', ct);
+      console.log('DEBUG PATCH /products/:id — req.body bruto:', JSON.stringify(req.body));
+      console.log('DEBUG PATCH /products/:id — rawBody após parseMultipartBody:', JSON.stringify(rawBody));
+
       const parsed = ProductSchema.partial().safeParse(rawBody);
-      if (!parsed.success)
+      if (!parsed.success) {
+        console.log('DEBUG PATCH /products/:id — zod REJEITOU:', JSON.stringify(parsed.error.flatten()));
         return res.status(400).json({ error: 'Invalid payload', details: parsed.error.flatten() });
+      }
+      console.log('DEBUG PATCH /products/:id — dados validados (d):', JSON.stringify(parsed.data));
 
       const d = parsed.data;
       const fields = [];
