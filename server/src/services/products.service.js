@@ -108,13 +108,14 @@ async function getProductById(id) {
 
 // ─── Mapper seguro ─────────────────────────────────────────────────────────────
 function mapProduct(r) {
-  let sizes = [];
-  try {
-    sizes = JSON.parse(r.sizes || '[]');
-    if (!Array.isArray(sizes)) sizes = [];
-  } catch {
-    sizes = [];
+  // mysql2 já devolve colunas JSON como array/objeto JS pronto — rodar
+  // JSON.parse() de novo aqui corrompe o valor (ex.: ["43"] vira 43).
+  // Só fazemos o parse se, por algum motivo, ainda vier como string.
+  let sizes = r.sizes;
+  if (typeof sizes === 'string') {
+    try { sizes = JSON.parse(sizes || '[]'); } catch { sizes = []; }
   }
+  if (!Array.isArray(sizes)) sizes = [];
 
   let images = [];
   try {

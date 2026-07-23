@@ -122,14 +122,15 @@ router.get('/products', async (req, res, next) => {
        ORDER BY p.id DESC LIMIT ? OFFSET ?`,
       [limit, offset]
     );
-    // sizes_json vem como string do banco — o front espera um array pronto
-    // pra usar em `.join(', ')` no formulário de edição.
     const products = rows.map((r) => {
-      let sizes = [];
-      try {
-        sizes = JSON.parse(r.sizes_json || '[]');
-        if (!Array.isArray(sizes)) sizes = [];
-      } catch { sizes = []; }
+      // mysql2 já devolve colunas JSON como array/objeto JS pronto — rodar
+      // JSON.parse() de novo aqui corrompe o valor (ex.: ["43"] vira 43).
+      // Só fazemos o parse se, por algum motivo, ainda vier como string.
+      let sizes = r.sizes_json;
+      if (typeof sizes === 'string') {
+        try { sizes = JSON.parse(sizes || '[]'); } catch { sizes = []; }
+      }
+      if (!Array.isArray(sizes)) sizes = [];
       // A vitrine usa os nomes image/oldPrice. Manter esse formato também no
       // admin evita previews vazios e campos de edição sem o preço antigo.
       const { sizes_json, image_url, old_price, ...rest } = r;
@@ -228,17 +229,9 @@ router.patch('/products/:id', (req, res, next) => {
         : req.body;
       if (imageUrl) rawBody.image_url = imageUrl;
 
-      // DEBUG TEMPORÁRIO — remover depois de achar o bug do sizes_json
-      console.log('DEBUG PATCH /products/:id — content-type:', ct);
-      console.log('DEBUG PATCH /products/:id — req.body bruto:', JSON.stringify(req.body));
-      console.log('DEBUG PATCH /products/:id — rawBody após parseMultipartBody:', JSON.stringify(rawBody));
-
       const parsed = ProductSchema.partial().safeParse(rawBody);
-      if (!parsed.success) {
-        console.log('DEBUG PATCH /products/:id — zod REJEITOU:', JSON.stringify(parsed.error.flatten()));
+      if (!parsed.success)
         return res.status(400).json({ error: 'Invalid payload', details: parsed.error.flatten() });
-      }
-      console.log('DEBUG PATCH /products/:id — dados validados (d):', JSON.stringify(parsed.data));
 
       const d = parsed.data;
       const fields = [];
@@ -274,18 +267,11 @@ router.patch('/products/:id', (req, res, next) => {
         return res.status(400).json({ error: 'No fields to update' });
 
       values.push(id);
-      console.log('DEBUG PATCH /products/:id — SQL:', `UPDATE products SET ${fields.join(', ')} WHERE id = ?`);
-      console.log('DEBUG PATCH /products/:id — values:', JSON.stringify(values));
       const [result] = await pool.execute(
         `UPDATE products SET ${fields.join(', ')} WHERE id = ?`, values
       );
-      console.log('DEBUG PATCH /products/:id — result.affectedRows:', result.affectedRows, 'result.changedRows:', result.changedRows);
       if (result.affectedRows === 0)
         return res.status(404).json({ error: 'Not found' });
-
-      // DEBUG TEMPORÁRIO — confere o que ficou gravado de fato
-      const [[checkRow]] = await pool.query('SELECT sizes_json, stock_qty FROM products WHERE id = ?', [id]);
-      console.log('DEBUG PATCH /products/:id — releitura pós-UPDATE:', JSON.stringify(checkRow));
 
       // Se subiu nova imagem, apaga a antiga do disco
       if (imageUrl) {
