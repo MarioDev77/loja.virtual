@@ -51,14 +51,18 @@ export default function ProductGallery({ images, productName }) {
           aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center',
           position: 'relative', cursor: 'zoom-in',
         }}
-        onClick={() => setLightboxOpen(true)}
+        onClick={() => activeUrl && setLightboxOpen(true)}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={activeUrl}
-          alt={productName || 'Produto'}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-        />
+        {activeUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={activeUrl}
+            alt={productName || 'Produto'}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        ) : (
+          <div style={{ color: 'var(--muted)', fontSize: 14 }}>Sem imagem</div>
+        )}
 
         {hasMultiple && (
           <>

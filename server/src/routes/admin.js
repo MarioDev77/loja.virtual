@@ -615,7 +615,9 @@ router.delete('/products/:id/images/:imageId', async (req, res, next) => {
         await pool.execute('UPDATE product_images SET is_primary = 1 WHERE id = ?', [next.id]);
         await pool.execute('UPDATE products SET image_url = ? WHERE id = ?', [next.url, id]);
       } else {
-        await pool.execute('UPDATE products SET image_url = NULL WHERE id = ?', [id]);
+        // products.image_url é NOT NULL — string vazia sinaliza "sem imagem"
+        // pro front (productImageUrl trata '' como ausência de imagem).
+        await pool.execute("UPDATE products SET image_url = '' WHERE id = ?", [id]);
       }
     }
 
@@ -627,6 +629,23 @@ router.delete('/products/:id/images/:imageId', async (req, res, next) => {
 });
 
 // DELETE — soft delete
+// DELETE /manage/products — desativa TODOS os produtos de uma vez (mesmo
+// soft delete usado na exclusão individual: is_active = 0). Ação em massa,
+// então exige um corpo de confirmação explícito pra não disparar por engano
+// (ex.: um DELETE sem corpo vindo de algum client mal configurado).
+router.delete('/products', async (req, res, next) => {
+  try {
+    if (req.body?.confirm !== 'DELETE_ALL') {
+      return res.status(400).json({ error: 'Confirmação obrigatória: envie { "confirm": "DELETE_ALL" } no corpo da requisição.' });
+    }
+    const [result] = await pool.execute('UPDATE products SET is_active = 0 WHERE is_active = 1');
+    return res.json({ deleted: true, count: result.affectedRows });
+  } catch (err) {
+    if (err.status) return res.status(err.status).json({ error: err.message });
+    return next(err);
+  }
+});
+
 router.delete('/products/:id', async (req, res, next) => {
   try {
     const id = parsePositiveInt(req.params.id, 'product id');

@@ -43,8 +43,19 @@ export default function ProductCard({ product, onToast }) {
         >
           {wished ? '♥' : '♡'}
         </button>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={productImageUrl(product.image)} alt={product.name || 'Produto'} loading="lazy" />
+        {product.image ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={productImageUrl(product.image)} alt={product.name || 'Produto'} loading="lazy" />
+        ) : (
+          <div
+            style={{
+              width: '100%', height: '100%', display: 'flex', alignItems: 'center',
+              justifyContent: 'center', background: 'var(--surface)', color: 'var(--muted)', fontSize: 13,
+            }}
+          >
+            Sem imagem
+          </div>
+        )}
       </div>
       <div className="body">
         <span className="brand">{product.brand || ''}</span>
