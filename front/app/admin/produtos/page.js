@@ -75,6 +75,10 @@ export default function AdminProdutosPage() {
     if (filters.minPrice)  qs.set('minPrice', filters.minPrice);
     if (filters.maxPrice)  qs.set('maxPrice', filters.maxPrice);
     if (filters.size)      qs.set('size', filters.size);
+    // Sem isso, o total/paginação contam TODOS os produtos (ativos +
+    // inativos) mesmo quando a tabela só mostra os ativos — daí o contador
+    // não bater com "Nenhum produto encontrado" depois de excluir tudo.
+    if (!showInactive)     qs.set('status', 'active');
     const s = qs.toString();
     return s ? `&${s}` : '';
   }
@@ -101,12 +105,12 @@ export default function AdminProdutosPage() {
     setFilters(EMPTY_FILTERS);
   }
 
-  // Recarrega sempre que um filtro muda (volta pra página 1).
+  // Recarrega sempre que um filtro (ou o toggle de inativos) muda (volta pra página 1).
   useEffect(() => {
     if (!isAuthenticated) return;
     loadProducts(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters]);
+  }, [filters, showInactive]);
 
   function closeForm() {
     pendingFiles.forEach((f) => URL.revokeObjectURL(f.previewUrl));
@@ -336,10 +340,8 @@ export default function AdminProdutosPage() {
       const fd = new FormData();
       fd.append('is_active', product.is_active ? '0' : '1');
       await apiUpload(`${ADMIN_PREFIX}/products/${product.id}`, { method: 'PATCH', formData: fd, token });
-      setProducts((prev) => prev.map((p) =>
-        p.id === product.id ? { ...p, is_active: !p.is_active } : p
-      ));
       showToast(product.is_active ? 'Produto desativado.' : 'Produto ativado.', 'success');
+      await loadProducts(page);
     } catch (err) {
       showToast(err.message || 'Erro ao atualizar status. Tente novamente.', 'error');
     }
@@ -385,7 +387,7 @@ export default function AdminProdutosPage() {
     }
   }
 
-  const visibleProducts = showInactive ? products : products.filter((p) => p.is_active);
+  const visibleProducts = products;
 
   return (
     <div>
