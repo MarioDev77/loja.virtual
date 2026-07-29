@@ -354,9 +354,9 @@ export default function AdminProdutosPage() {
     setDeleting(true);
     try {
       await adminRequest(`/products/${confirmDelete.id}`, { method: 'DELETE' });
-      setProducts((prev) => prev.filter((p) => p.id !== confirmDelete.id));
       showToast('Produto excluído com sucesso!', 'success');
       setConfirmDelete(null);
+      await loadProducts(page);
     } catch (err) {
       showToast(err.message || 'Erro ao excluir produto. Tente novamente.', 'error');
     } finally {
