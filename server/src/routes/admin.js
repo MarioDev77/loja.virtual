@@ -104,15 +104,68 @@ function parseMultipartBody(body) {
 }
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
+// Limite provisório de "estoque baixo" — 5 unidades. Fica configurável por
+// produto quando o campo "estoque mínimo" (prioridade 4 do prompt master)
+// for implementado; até lá, usa esse valor fixo pra todos os produtos.
+const LOW_STOCK_THRESHOLD = 5;
+
 router.get('/dashboard', async (req, res, next) => {
   try {
-    // Sem WHERE is_active — o contador deve refletir exatamente a
-    // quantidade de produtos existentes no banco (ativos + inativos),
-    // não só os ativos.
-    const [[{ total_products }]] = await pool.query(
-      'SELECT COUNT(*) AS total_products FROM products'
+    // Um único SELECT com agregações condicionais — evita 8 roundtrips
+    // separados ao banco pra montar os cards.
+    const [[stats]] = await pool.query(`
+      SELECT
+        COUNT(*)                                                    AS total_products,
+        SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END)               AS active_products,
+        SUM(CASE WHEN is_active = 0 THEN 1 ELSE 0 END)               AS inactive_products,
+        SUM(CASE WHEN old_price IS NOT NULL AND old_price > price THEN 1 ELSE 0 END) AS promo_products,
+        SUM(CASE WHEN is_featured = 1 THEN 1 ELSE 0 END)             AS featured_products,
+        SUM(CASE WHEN stock_qty = 0 THEN 1 ELSE 0 END)               AS out_of_stock_products,
+        SUM(CASE WHEN stock_qty > 0 AND stock_qty <= ? THEN 1 ELSE 0 END) AS low_stock_products
+      FROM products
+    `, [LOW_STOCK_THRESHOLD]);
+
+    const [[{ total_categories }]] = await pool.query('SELECT COUNT(*) AS total_categories FROM categories');
+    const [[{ total_brands }]] = await pool.query(
+      `SELECT COUNT(DISTINCT brand) AS total_brands FROM products WHERE brand <> ''`
     );
-    return res.json({ total_products });
+
+    // Gráfico: quantidade de produtos por categoria
+    const [byCategoryRows] = await pool.query(`
+      SELECT c.name AS category, COUNT(p.id) AS count
+      FROM categories c
+      LEFT JOIN products p ON p.category_id = c.id
+      GROUP BY c.id, c.name
+      ORDER BY count DESC
+    `);
+
+    // Últimos produtos cadastrados
+    const [recentRows] = await pool.query(`
+      SELECT p.id, p.name, p.image_url, c.slug AS category, p.price, p.created_at
+      FROM products p
+      INNER JOIN categories c ON c.id = p.category_id
+      ORDER BY p.id DESC
+      LIMIT 5
+    `);
+
+    return res.json({
+      totalProducts:      Number(stats.total_products || 0),
+      activeProducts:     Number(stats.active_products || 0),
+      inactiveProducts:   Number(stats.inactive_products || 0),
+      promoProducts:      Number(stats.promo_products || 0),
+      featuredProducts:   Number(stats.featured_products || 0),
+      outOfStockProducts: Number(stats.out_of_stock_products || 0),
+      lowStockProducts:   Number(stats.low_stock_products || 0),
+      totalCategories:    Number(total_categories || 0),
+      totalBrands:        Number(total_brands || 0),
+      byCategory: byCategoryRows.map((r) => ({ category: r.category, count: Number(r.count) })),
+      recentProducts: recentRows.map((r) => ({
+        id: r.id, name: r.name, image: r.image_url, category: r.category,
+        price: Number(r.price), createdAt: r.created_at,
+      })),
+      // Mantido por compatibilidade com qualquer consumidor antigo do campo.
+      total_products: Number(stats.total_products || 0),
+    });
   } catch (err) { return next(err); }
 });
 
