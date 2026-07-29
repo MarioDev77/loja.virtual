@@ -27,7 +27,10 @@ function hasValidImage(p) { return Boolean(p.image); }
  * vanilla. Mantém os mesmos parâmetros de query (category, sort, q, page,
  * limit) e a mesma filtragem de imagens válidas.
  */
-export function useProducts({ category = 'all', sort = 'newest', search = '' } = {}) {
+export function useProducts({
+  category = 'all', sort = 'newest', search = '',
+  brand = '', minPrice = '', maxPrice = '', size = '',
+} = {}) {
   const [products, setProducts] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
@@ -48,6 +51,10 @@ export function useProducts({ category = 'all', sort = 'newest', search = '' } =
       if (category !== 'all') params.category = category;
       if (sort) params.sort = sort;
       if (search) params.q = search;
+      if (brand) params.brand = brand;
+      if (minPrice !== '' && minPrice !== null && minPrice !== undefined) params.minPrice = minPrice;
+      if (maxPrice !== '' && maxPrice !== null && maxPrice !== undefined) params.maxPrice = maxPrice;
+      if (size) params.size = size;
 
       const data = await apiRequest(`/products${buildQuery(params)}`);
       if (requestId !== requestIdRef.current) return; // resposta obsoleta
@@ -76,14 +83,14 @@ export function useProducts({ category = 'all', sort = 'newest', search = '' } =
     } finally {
       if (requestId === requestIdRef.current) setIsLoadingMore(false);
     }
-  }, [category, sort, search]);
+  }, [category, sort, search, brand, minPrice, maxPrice, size]);
 
   // Sempre que filtro/sort/busca mudam, reseta para a página 1.
   useEffect(() => {
     setPage(1);
     fetchPage(1, false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category, sort, search]);
+  }, [category, sort, search, brand, minPrice, maxPrice, size]);
 
   const loadMore = useCallback(() => {
     if (isLoadingMore || !hasMore) return;

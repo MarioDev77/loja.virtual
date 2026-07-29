@@ -120,7 +120,7 @@ function uploadImage(req, res, next) {
 // Mesmas proteções de uploadImage (magic bytes + sharp), aplicadas a cada
 // arquivo do array. Não substitui uploadImage — é uma rota adicional para
 // quem precisa subir uma galeria inteira de uma vez.
-const MAX_GALLERY_IMAGES = 6;
+const MAX_GALLERY_IMAGES = 5;
 
 const uploadMultiple = multer({
   storage: multer.memoryStorage(),
@@ -186,4 +186,4 @@ function uploadImages(req, res, next) {
   });
 }
 
-module.exports = { uploadImage, uploadImages, UPLOAD_DIR };
+module.exports = { uploadImage, uploadImages, UPLOAD_DIR, MAX_GALLERY_IMAGES };

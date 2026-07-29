@@ -13,11 +13,26 @@ const { z } = require('zod');
 
 const { authJwt } = require('../middlewares/authJwt');
 const { requireRole } = require('../middlewares/requireRole');
-const { uploadImage, uploadImages, UPLOAD_DIR } = require('../middlewares/upload');
+const { uploadImage, uploadImages, UPLOAD_DIR, MAX_GALLERY_IMAGES } = require('../middlewares/upload');
 const { parsePositiveInt } = require('../utils/security');
 const { pool } = require('../db/pool');
 
 const router = express.Router();
+
+// Subquery de galeria — mesmo padrão usado no service público (products.service.js).
+const IMAGES_SUBQUERY = `(
+  SELECT COALESCE(
+    JSON_ARRAYAGG(
+      JSON_OBJECT('id', pi.id, 'url', pi.url, 'isPrimary', pi.is_primary, 'sortOrder', pi.sort_order)
+    ), JSON_ARRAY()
+  )
+  FROM (
+    SELECT id, url, is_primary, sort_order
+    FROM product_images
+    WHERE product_id = p.id
+    ORDER BY sort_order ASC, id ASC
+  ) pi
+) AS images_json`;
 
 // authJwt + requireRole em TODAS as rotas
 router.use(authJwt, requireRole('admin'));
@@ -91,8 +106,11 @@ function parseMultipartBody(body) {
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 router.get('/dashboard', async (req, res, next) => {
   try {
+    // Sem WHERE is_active — o contador deve refletir exatamente a
+    // quantidade de produtos existentes no banco (ativos + inativos),
+    // não só os ativos.
     const [[{ total_products }]] = await pool.query(
-      'SELECT COUNT(*) AS total_products FROM products WHERE is_active=1'
+      'SELECT COUNT(*) AS total_products FROM products'
     );
     return res.json({ total_products });
   } catch (err) { return next(err); }
@@ -113,14 +131,62 @@ router.get('/products', async (req, res, next) => {
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
     const offset = (page - 1) * limit;
+
+    // ── Filtros opcionais (mesma lógica da loja, mas sem WHERE de status —
+    // o painel precisa enxergar TODOS os produtos por padrão) ──────────────
+    const conditions = [];
+    const params = [];
+
+    const category = (req.query.category || '').toString().trim();
+    if (category && category !== 'all') {
+      conditions.push('c.slug = ?');
+      params.push(category);
+    }
+
+    const brand = (req.query.brand || '').toString().trim();
+    if (brand) {
+      conditions.push('p.brand = ?');
+      params.push(brand);
+    }
+
+    const minPrice = req.query.minPrice;
+    if (minPrice !== undefined && minPrice !== '' && !Number.isNaN(Number(minPrice))) {
+      conditions.push('p.price >= ?');
+      params.push(Number(minPrice));
+    }
+
+    const maxPrice = req.query.maxPrice;
+    if (maxPrice !== undefined && maxPrice !== '' && !Number.isNaN(Number(maxPrice))) {
+      conditions.push('p.price <= ?');
+      params.push(Number(maxPrice));
+    }
+
+    const size = (req.query.size || '').toString().trim();
+    if (size) {
+      conditions.push('(JSON_CONTAINS(p.sizes_json, JSON_QUOTE(?)) OR JSON_CONTAINS(p.sizes_json, CAST(? AS JSON)))');
+      params.push(size, size);
+    }
+
+    const status = (req.query.status || '').toString().trim();
+    if (status === 'active') conditions.push('p.is_active = 1');
+    if (status === 'inactive') conditions.push('p.is_active = 0');
+
+    const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+
+    const [[{ total }]] = await pool.query(
+      `SELECT COUNT(*) AS total FROM products p INNER JOIN categories c ON c.id = p.category_id ${where}`,
+      params
+    );
+
     const [rows] = await pool.query(
       `SELECT p.id, p.name, p.brand, c.slug AS category, p.price, p.old_price,
               p.image_url, p.description AS \`desc\`, p.sizes_json, p.stock_qty,
-              p.is_active, p.is_featured
+              p.is_active, p.is_featured, ${IMAGES_SUBQUERY}
        FROM products p
        INNER JOIN categories c ON c.id = p.category_id
+       ${where}
        ORDER BY p.id DESC LIMIT ? OFFSET ?`,
-      [limit, offset]
+      [...params, limit, offset]
     );
     const products = rows.map((r) => {
       // mysql2 já devolve colunas JSON como array/objeto JS pronto — rodar
@@ -131,17 +197,57 @@ router.get('/products', async (req, res, next) => {
         try { sizes = JSON.parse(sizes || '[]'); } catch { sizes = []; }
       }
       if (!Array.isArray(sizes)) sizes = [];
+
+      let images = r.images_json;
+      if (typeof images === 'string') {
+        try { images = JSON.parse(images || '[]'); } catch { images = []; }
+      }
+      if (!Array.isArray(images)) images = [];
+
       // A vitrine usa os nomes image/oldPrice. Manter esse formato também no
       // admin evita previews vazios e campos de edição sem o preço antigo.
-      const { sizes_json, image_url, old_price, ...rest } = r;
+      const { sizes_json, images_json, image_url, old_price, ...rest } = r;
       return {
         ...rest,
         image: image_url || '',
         oldPrice: old_price == null ? null : Number(old_price),
         sizes,
+        images,
       };
     });
-    return res.json({ products });
+    return res.json({ products, total, hasMore: offset + rows.length < total });
+  } catch (err) { return next(err); }
+});
+
+// ─── GET /products/meta — dados p/ montar filtros do painel (marca, preço, tamanho) ──
+router.get('/products/meta', async (req, res, next) => {
+  try {
+    const [brandRows] = await pool.query(
+      `SELECT DISTINCT brand FROM products WHERE brand <> '' ORDER BY brand ASC`
+    );
+    const [priceRows] = await pool.query('SELECT MIN(price) AS min, MAX(price) AS max FROM products');
+    const [sizeRows] = await pool.query('SELECT sizes_json FROM products');
+
+    const sizeSet = new Set();
+    for (const row of sizeRows) {
+      let sizes = row.sizes_json;
+      if (typeof sizes === 'string') {
+        try { sizes = JSON.parse(sizes || '[]'); } catch { sizes = []; }
+      }
+      if (Array.isArray(sizes)) sizes.forEach((s) => sizeSet.add(String(s)));
+    }
+    const sizes = Array.from(sizeSet).sort((a, b) => {
+      const na = Number(a), nb = Number(b);
+      if (!Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
+      return a.localeCompare(b);
+    });
+
+    return res.json({
+      brands: brandRows.map((r) => r.brand),
+      sizes,
+      priceMin: priceRows[0]?.min == null ? 0 : Number(priceRows[0].min),
+      priceMax: priceRows[0]?.max == null ? 0 : Number(priceRows[0].max),
+    });
   } catch (err) { return next(err); }
 });
 
@@ -302,10 +408,11 @@ router.patch('/products/:id', (req, res, next) => {
   return doUpdate(undefined);
 });
 
-// ─── Galeria de imagens (etapa 6) ─────────────────────────────────────────────
+// ─── Galeria de imagens (etapa 6, ajustada para máx. 5 por produto) ──────────
 
-// POST /manage/products/:id/images — sobe até 6 imagens e adiciona à galeria
-// (não substitui as existentes; usar DELETE abaixo para remover uma específica)
+// POST /manage/products/:id/images — adiciona imagens à galeria, respeitando
+// o limite total de MAX_GALLERY_IMAGES por produto (soma do que já existe +
+// o que está sendo enviado agora — não é só um limite por chamada).
 router.post('/products/:id/images', uploadImages, async (req, res, next) => {
   try {
     const id = parsePositiveInt(req.params.id, 'product id');
@@ -315,6 +422,16 @@ router.post('/products/:id/images', uploadImages, async (req, res, next) => {
 
     if (!req.uploadedFiles || req.uploadedFiles.length === 0)
       return res.status(400).json({ error: 'No images provided' });
+
+    const [[{ existingCount }]] = await pool.query(
+      'SELECT COUNT(*) AS existingCount FROM product_images WHERE product_id = ?',
+      [id]
+    );
+    if (Number(existingCount) + req.uploadedFiles.length > MAX_GALLERY_IMAGES) {
+      return res.status(422).json({
+        error: `Este produto já tem ${existingCount} imagem(ns). O máximo é ${MAX_GALLERY_IMAGES} por produto.`,
+      });
+    }
 
     // Próximo sort_order: continua a partir do que já existe na galeria
     const [[{ maxOrder }]] = await pool.query(
@@ -347,6 +464,69 @@ router.post('/products/:id/images', uploadImages, async (req, res, next) => {
     }
 
     return res.status(201).json({ images: inserted });
+  } catch (err) {
+    if (err.status) return res.status(err.status).json({ error: err.message });
+    return next(err);
+  }
+});
+
+// PATCH /manage/products/:id/images/:imageId/primary — define uma imagem
+// existente como principal (desmarca as demais e sincroniza products.image_url)
+router.patch('/products/:id/images/:imageId/primary', async (req, res, next) => {
+  try {
+    const id = parsePositiveInt(req.params.id, 'product id');
+    const imageId = parsePositiveInt(req.params.imageId, 'image id');
+
+    const [[image]] = await pool.query(
+      'SELECT id, url FROM product_images WHERE id = ? AND product_id = ?',
+      [imageId, id]
+    );
+    if (!image) return res.status(404).json({ error: 'Not found' });
+
+    await pool.execute('UPDATE product_images SET is_primary = 0 WHERE product_id = ?', [id]);
+    await pool.execute('UPDATE product_images SET is_primary = 1 WHERE id = ?', [imageId]);
+    await pool.execute('UPDATE products SET image_url = ? WHERE id = ?', [image.url, id]);
+
+    return res.json({ updated: true });
+  } catch (err) {
+    if (err.status) return res.status(err.status).json({ error: err.message });
+    return next(err);
+  }
+});
+
+// PATCH /manage/products/:id/images/reorder — recebe a nova ordem das
+// imagens: { order: [imageId1, imageId2, ...] }. Todas as imagens do
+// produto precisam estar na lista.
+const ReorderSchema = z.object({
+  order: z.array(z.number().int().positive()).min(1),
+});
+
+router.patch('/products/:id/images/reorder', async (req, res, next) => {
+  try {
+    const id = parsePositiveInt(req.params.id, 'product id');
+
+    const parsed = ReorderSchema.safeParse(req.body);
+    if (!parsed.success)
+      return res.status(400).json({ error: 'Invalid payload' });
+
+    const [existing] = await pool.query(
+      'SELECT id FROM product_images WHERE product_id = ?',
+      [id]
+    );
+    const existingIds = new Set(existing.map((r) => r.id));
+    const sameSet = existingIds.size === parsed.data.order.length &&
+      parsed.data.order.every((imgId) => existingIds.has(imgId));
+    if (!sameSet)
+      return res.status(422).json({ error: 'A lista de ordem não corresponde às imagens do produto' });
+
+    for (let i = 0; i < parsed.data.order.length; i++) {
+      await pool.execute(
+        'UPDATE product_images SET sort_order = ? WHERE id = ? AND product_id = ?',
+        [i, parsed.data.order[i], id]
+      );
+    }
+
+    return res.json({ updated: true });
   } catch (err) {
     if (err.status) return res.status(err.status).json({ error: err.message });
     return next(err);

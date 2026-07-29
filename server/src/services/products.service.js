@@ -42,14 +42,20 @@ const IMAGES_SUBQUERY = `(
 ) AS images_json`;
 
 /**
- * Lista produtos com filtro de categoria, busca por nome, sort e paginação.
- * Retorna { products, total, hasMore } para o front controlar "carregar mais".
- * 100% parametrizado — sem interpolação de strings em SQL.
+ * Lista produtos com filtro de categoria, marca, preço, tamanho, busca por
+ * nome, sort e paginação. Retorna { products, total, hasMore } para o front
+ * controlar "carregar mais". 100% parametrizado — sem interpolação de
+ * strings em SQL.
  */
-async function listProducts({ category, sort = 'newest', q = '', page = 1, limit = 12 } = {}) {
+async function listProducts({
+  category, sort = 'newest', q = '', page = 1, limit = 12,
+  brand = '', minPrice, maxPrice, size = '',
+} = {}) {
   const cat      = (category || 'all').toString().trim();
   const useAll   = !VALID_CATS.has(cat) || cat === 'all';
   const useSearch = q && q.trim().length > 0;
+  const useBrand  = brand && brand.trim().length > 0;
+  const useSize   = size && size.toString().trim().length > 0;
 
   const orderClause = SORT_MAP[sort] || SORT_MAP.newest;
   const safePage    = Math.max(1, Number(page) || 1);
@@ -72,6 +78,29 @@ async function listProducts({ category, sort = 'newest', q = '', page = 1, limit
     params.push(`%${safeTerm}%`);
   }
 
+  if (useBrand) {
+    conditions.push('p.brand = ?');
+    params.push(brand.trim());
+  }
+
+  if (minPrice !== undefined && minPrice !== null && minPrice !== '') {
+    conditions.push('p.price >= ?');
+    params.push(Number(minPrice));
+  }
+
+  if (maxPrice !== undefined && maxPrice !== null && maxPrice !== '') {
+    conditions.push('p.price <= ?');
+    params.push(Number(maxPrice));
+  }
+
+  if (useSize) {
+    // sizes_json guarda tamanhos como string ou número — cobre os dois
+    // formatos sem exigir migração dos dados já cadastrados.
+    const sizeStr = size.toString().trim();
+    conditions.push('(JSON_CONTAINS(p.sizes_json, JSON_QUOTE(?)) OR JSON_CONTAINS(p.sizes_json, CAST(? AS JSON)))');
+    params.push(sizeStr, sizeStr);
+  }
+
   const where = `WHERE ${conditions.join(' AND ')}`;
 
   // ── Count total (para o front saber se há mais páginas) ─────────────────
@@ -91,6 +120,48 @@ async function listProducts({ category, sort = 'newest', q = '', page = 1, limit
     products: rows.map(mapProduct),
     total,
     hasMore: offset + rows.length < total,
+  };
+}
+
+/**
+ * Metadados para montar os filtros do catálogo: marcas disponíveis, faixa
+ * de preço e tamanhos existentes entre os produtos ativos. Tamanhos são
+ * calculados em JS (não em SQL) porque sizes_json mistura strings e
+ * números conforme cadastrado no admin.
+ */
+async function getFilterMeta() {
+  const [brandRows] = await pool.query(
+    `SELECT DISTINCT p.brand FROM products p WHERE p.is_active = 1 AND p.brand <> '' ORDER BY p.brand ASC`
+  );
+  const [priceRows] = await pool.query(
+    `SELECT MIN(p.price) AS min, MAX(p.price) AS max FROM products p WHERE p.is_active = 1`
+  );
+  const [sizeRows] = await pool.query(
+    `SELECT p.sizes_json FROM products p WHERE p.is_active = 1`
+  );
+
+  const sizeSet = new Set();
+  for (const row of sizeRows) {
+    let sizes = row.sizes_json;
+    if (typeof sizes === 'string') {
+      try { sizes = JSON.parse(sizes || '[]'); } catch { sizes = []; }
+    }
+    if (Array.isArray(sizes)) sizes.forEach((s) => sizeSet.add(String(s)));
+  }
+
+  // Ordena numericamente quando possível (tamanhos de calçado), com
+  // fallback alfabético para valores não numéricos.
+  const sizes = Array.from(sizeSet).sort((a, b) => {
+    const na = Number(a), nb = Number(b);
+    if (!Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
+    return a.localeCompare(b);
+  });
+
+  return {
+    brands: brandRows.map((r) => r.brand),
+    sizes,
+    priceMin: priceRows[0]?.min == null ? 0 : Number(priceRows[0].min),
+    priceMax: priceRows[0]?.max == null ? 0 : Number(priceRows[0].max),
   };
 }
 
@@ -155,4 +226,4 @@ function mapProduct(r) {
   };
 }
 
-module.exports = { listProducts, getProductById };
+module.exports = { listProducts, getProductById, getFilterMeta };

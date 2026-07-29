@@ -3,7 +3,7 @@
 const express = require('express');
 const { z } = require('zod');
 
-const { listProducts, getProductById } = require('../services/products.service');
+const { listProducts, getProductById, getFilterMeta } = require('../services/products.service');
 const { getReviewsByProduct, createReview } = require('../services/reviews.service');
 const { parsePositiveInt } = require('../utils/security');
 const { authJwt } = require('../middlewares/authJwt');
@@ -20,6 +20,21 @@ const ProductQuerySchema = z.object({
   q:        z.string().max(100).optional(), // busca por nome (novo)
   page:     z.coerce.number().int().min(1).max(1000).optional().default(1),
   limit:    z.coerce.number().int().min(1).max(100).optional().default(12),
+  brand:    z.string().max(80).optional(),
+  minPrice: z.coerce.number().min(0).optional(),
+  maxPrice: z.coerce.number().min(0).optional(),
+  size:     z.string().max(10).optional(),
+});
+
+// ─── GET /api/products/meta — dados p/ montar os filtros do catálogo ────────
+// Registrada antes de /:id para não ser capturada pela rota de detalhe.
+router.get('/meta', async (req, res, next) => {
+  try {
+    const meta = await getFilterMeta();
+    return res.json(meta);
+  } catch (err) {
+    return next(err);
+  }
 });
 
 // ─── GET /api/products ────────────────────────────────────────────────────────
@@ -30,7 +45,7 @@ router.get('/', async (req, res, next) => {
       return res.status(400).json({ error: 'Invalid query parameters' });
     }
 
-    const { category, sort, q, page, limit } = parsed.data;
+    const { category, sort, q, page, limit, brand, minPrice, maxPrice, size } = parsed.data;
 
     const safeCategory = VALID_CATEGORIES.has(category) ? category : 'all';
     const safeSort     = VALID_SORT.has(sort) ? sort : 'newest';
@@ -41,6 +56,10 @@ router.get('/', async (req, res, next) => {
       q:        q || '',
       page,
       limit,
+      brand:    brand || '',
+      minPrice,
+      maxPrice,
+      size:     size || '',
     });
 
     return res.json({ products, total, hasMore, page, limit });
