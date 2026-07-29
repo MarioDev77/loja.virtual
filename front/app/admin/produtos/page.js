@@ -54,6 +54,13 @@ export default function AdminProdutosPage() {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
+  // Exclusão em massa: exige digitar uma frase de confirmação, já que
+  // afeta todos os produtos cadastrados de uma vez.
+  const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
+  const [deleteAllPhrase, setDeleteAllPhrase] = useState('');
+  const [deletingAll, setDeletingAll] = useState(false);
+  const DELETE_ALL_PHRASE = 'excluir todos';
+
   useEffect(() => {
     if (!isAuthenticated) { router.push('/admin/login'); return; }
     adminRequest('/products/meta')
@@ -357,6 +364,27 @@ export default function AdminProdutosPage() {
     }
   }
 
+  // ─── Exclusão em massa (todos os produtos) ────────────────────────────────
+  // Mesmo soft delete (is_active = 0) usado na exclusão individual — nada é
+  // apagado do banco, então dá pra reativar produto por produto depois se
+  // for engano. Exige digitar a frase de confirmação antes de habilitar o
+  // botão, já que afeta o catálogo inteiro de uma vez.
+  async function handleConfirmDeleteAll() {
+    if (deleteAllPhrase.trim().toLowerCase() !== DELETE_ALL_PHRASE) return;
+    setDeletingAll(true);
+    try {
+      const res = await adminRequest('/products', { method: 'DELETE', body: { confirm: 'DELETE_ALL' } });
+      showToast(`${res?.count ?? 0} produto(s) desativado(s).`, 'success');
+      setConfirmDeleteAll(false);
+      setDeleteAllPhrase('');
+      loadProducts(1);
+    } catch (err) {
+      showToast(err.message || 'Erro ao excluir todos os produtos. Tente novamente.', 'error');
+    } finally {
+      setDeletingAll(false);
+    }
+  }
+
   const visibleProducts = showInactive ? products : products.filter((p) => p.is_active);
 
   return (
@@ -366,10 +394,20 @@ export default function AdminProdutosPage() {
           <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 800 }}>Produtos</h1>
           <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 4 }}>Gerencie o catálogo da loja.</p>
         </div>
-        <button onClick={openCreate} className="btn-primary" style={{ fontSize: 13 }}>
-          <iconify-icon className="iconify" icon="mdi:plus" style={{ fontSize: 18 }} />
-          Novo produto
-        </button>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button
+            onClick={() => setConfirmDeleteAll(true)}
+            className="btn-secondary"
+            style={{ fontSize: 13, color: 'var(--red, #ef4444)' }}
+          >
+            <iconify-icon className="iconify" icon="mdi:delete-sweep-outline" style={{ fontSize: 18 }} />
+            Excluir todos
+          </button>
+          <button onClick={openCreate} className="btn-primary" style={{ fontSize: 13 }}>
+            <iconify-icon className="iconify" icon="mdi:plus" style={{ fontSize: 18 }} />
+            Novo produto
+          </button>
+        </div>
       </div>
 
       {/* Modal de formulário */}
@@ -645,6 +683,57 @@ export default function AdminProdutosPage() {
           </div>
         </div>
       )}
+
+      {/* Modal de confirmação de exclusão em massa */}
+      {confirmDeleteAll && (
+        <div className="modal-overlay open" role="dialog" aria-modal="true" aria-label="Confirmar exclusão de todos os produtos">
+          <div className="modal-content" style={{ maxWidth: 440 }}>
+            <div style={{ padding: 28 }}>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, marginBottom: 12, color: 'var(--red, #ef4444)' }}>
+                Excluir TODOS os produtos?
+              </h2>
+              <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 12 }}>
+                Isso vai desativar <strong>todos os {products.filter((p) => p.is_active).length} produtos ativos</strong> do
+                catálogo de uma vez — a loja ficará sem nenhum produto visível. É o mesmo tipo de exclusão usado
+                individualmente (nada é apagado do banco), então dá pra reativar depois, produto por produto, em
+                &quot;Mostrar inativos/excluídos&quot;.
+              </p>
+              <p style={{ fontSize: 13, marginBottom: 8 }}>
+                Digite <strong>{DELETE_ALL_PHRASE}</strong> abaixo para confirmar:
+              </p>
+              <input
+                type="text"
+                className="field-input"
+                style={{ width: '100%', marginBottom: 20 }}
+                value={deleteAllPhrase}
+                onChange={(e) => setDeleteAllPhrase(e.target.value)}
+                placeholder={DELETE_ALL_PHRASE}
+                autoComplete="off"
+              />
+              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  onClick={() => { setConfirmDeleteAll(false); setDeleteAllPhrase(''); }}
+                  className="btn-secondary"
+                  disabled={deletingAll}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmDeleteAll}
+                  className="btn-primary"
+                  style={{ background: 'var(--red, #ef4444)', borderColor: 'var(--red, #ef4444)' }}
+                  disabled={deletingAll || deleteAllPhrase.trim().toLowerCase() !== DELETE_ALL_PHRASE}
+                >
+                  {deletingAll ? 'Excluindo…' : 'Excluir todos'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+
   );
 }
