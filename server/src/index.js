@@ -134,11 +134,13 @@ app.use((req, res, next) => {
   return next();
 });
 
-// ─── Rate limiting global ─────────────────────────────────────────────────────
+// ─── Rate limiting global (só na API — imagens estáticas não devem contar
+// pra esse limite, senão navegar o catálogo sozinho já estoura a cota) ───────
 app.use(
+  '/api',
   rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 150,
+    limit: 600,
     standardHeaders: 'draft-7',
     legacyHeaders: false,
     message: { error: 'Too many requests, please try again later' },

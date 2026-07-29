@@ -15,14 +15,6 @@ function buildQuery(params) {
 }
 
 /**
- * Réplica do filtro de imagem do app.js original: bloqueia imagens de
- * fontes não confiáveis (ex: picsum.photos usado nos produtos fictícios
- * desativados), aceitando só caminhos relativos (/uploads, /seed-images)
- * ou a própria origem da API.
- */
-function hasValidImage(p) { return Boolean(p.image); }
-
-/**
  * useProducts — réplica de loadProducts/loadMore/buildQuery do front
  * vanilla. Mantém os mesmos parâmetros de query (category, sort, q, page,
  * limit) e a mesma filtragem de imagens válidas.
@@ -60,14 +52,13 @@ export function useProducts({
       if (requestId !== requestIdRef.current) return; // resposta obsoleta
 
       const rawProducts = (data && data.products) || [];
-      const validProducts = rawProducts.filter(hasValidImage);
       const more = !!(data && data.hasMore);
 
       setHasMore(more);
-      setProducts((prev) => (append ? [...prev, ...validProducts] : validProducts));
+      setProducts((prev) => (append ? [...prev, ...rawProducts] : rawProducts));
 
       if (!append) {
-        setStatus(validProducts.length ? 'ready' : 'empty');
+        setStatus(rawProducts.length ? 'ready' : 'empty');
       }
     } catch (err) {
       if (requestId !== requestIdRef.current) return;
