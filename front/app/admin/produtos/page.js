@@ -8,7 +8,7 @@ import { brl } from '@/lib/format';
 import { useToast } from '@/context/ToastContext';
 
 const ADMIN_PREFIX = '/manage';
-const CATEGORIES   = ['society', 'futsal', 'campo', 'tenis', 'blusas'];
+const CATEGORIES   = ['society', 'futsal', 'campo', 'acessorios', 'blusas'];
 const MAX_IMAGES   = 5;
 
 const EMPTY_FORM = {
