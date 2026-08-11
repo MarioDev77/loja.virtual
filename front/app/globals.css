@@ -1651,3 +1651,172 @@ footer a:hover { color: var(--amber-lt); }
 /* ─── Classe cart-line-info (corrige div sem classe no renderCartPanel) ─── */
 .cart-line-info { display: flex; flex-direction: column; min-width: 0; }
 .cart-line-price-col { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+
+/* ─── ProductGallery — galeria de imagens do produto (estilo marketplace) ── */
+.pg { width: 100%; }
+.pg-wrap { display: flex; gap: 12px; }
+
+.pg-main {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--surface);
+  touch-action: pan-y;
+}
+.pg-track { position: relative; width: 100%; height: 100%; }
+.pg-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  -webkit-user-drag: none;
+  user-select: none;
+  pointer-events: none;
+}
+.pg-empty {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted); font-size: 14px;
+}
+
+/* Lupa de zoom (hover no desktop) */
+.pg-lens {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  opacity: 1;
+}
+
+/* Setas — discretas, aparecem no hover (desktop); sempre visíveis (fallback) em telas sem hover */
+.pg-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(15, 15, 14, 0.45);
+  backdrop-filter: blur(2px);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease, background 0.2s ease;
+  z-index: 2;
+}
+.pg-arrow:hover { background: rgba(15, 15, 14, 0.7); }
+.pg-arrow-left { left: 10px; }
+.pg-arrow-right { right: 10px; }
+.pg-main:hover .pg-arrow { opacity: 1; }
+@media (hover: none) {
+  .pg-arrow { opacity: 1; background: rgba(15, 15, 14, 0.35); }
+}
+
+.pg-dots {
+  position: absolute;
+  left: 0; right: 0; bottom: 10px;
+  display: flex; justify-content: center; gap: 6px;
+  pointer-events: none;
+  z-index: 2;
+}
+.pg-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(255,255,255,0.7);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.15);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.pg-dot.active { background: var(--amber-dk); transform: scale(1.25); }
+
+/* Miniaturas — coluna vertical no desktop, à esquerda da imagem principal */
+.pg-thumbs {
+  order: -1;
+  flex: 0 0 76px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 100%;
+  overflow-y: auto;
+}
+.pg-thumb {
+  flex: 0 0 auto;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.pg-thumb:hover { border-color: var(--amber-lt); }
+.pg-thumb.active { border: 2px solid var(--amber-dk); }
+
+@media (max-width: 640px) {
+  .pg-wrap { flex-direction: column; }
+  .pg-thumbs {
+    order: 1;
+    flex-direction: row;
+    width: 100%;
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+  .pg-thumb { flex: 0 0 64px; width: 64px; }
+}
+
+/* ─── Lightbox (visualizador em tela cheia) — renderizado via portal ────── */
+.pg-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pg-close {
+  position: absolute;
+  top: 16px; right: 16px;
+  background: rgba(255,255,255,0.12);
+  border: none;
+  border-radius: 50%;
+  width: 40px; height: 40px;
+  color: #fff;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 3;
+}
+.pg-close:hover { background: rgba(255,255,255,0.22); }
+.pg-lb-viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+}
+.pg-lb-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+.pg-lb-arrow { opacity: 1; width: 44px; height: 44px; }
+.pg-lb-arrow.pg-arrow-left { left: 16px; }
+.pg-lb-arrow.pg-arrow-right { right: 16px; }
+.pg-lb-dots { bottom: 20px; }
+
+@media (max-width: 640px) {
+  .pg-lb-arrow { display: none; }
+}
