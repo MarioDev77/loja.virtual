@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import ProductGrid from '@/components/ProductGrid';
+import PromoBanner from '@/components/PromoBanner';
+import CategoryCarousel from '@/components/CategoryCarousel';
 import { useProducts } from '@/lib/useProducts';
 
 const WPP_NUMBER = '557598756510';
@@ -89,6 +91,12 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      {/* ====== PROMO BANNER (carrossel deslizante) ====== */}
+      <PromoBanner />
+
+      {/* ====== CATEGORIAS (ícones circulares) ====== */}
+      <CategoryCarousel />
 
       {/* ====== PRODUCTS ====== */}
       <section id="productsSection" aria-label="Catálogo de produtos">

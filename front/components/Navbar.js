@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useWish } from '@/context/WishContext';
 
 const CATEGORIES = [
@@ -21,7 +22,9 @@ const CATEGORIES = [
 export default function Navbar({ onOpenWish }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [navSearch, setNavSearch] = useState('');
   const { count: wishCount } = useWish();
+  const router = useRouter();
 
   useEffect(() => {
     function onScroll() {
@@ -31,6 +34,12 @@ export default function Navbar({ onOpenWish }) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  function handleNavSearchSubmit(e) {
+    e.preventDefault();
+    const term = navSearch.trim();
+    router.push(term ? `/produtos?q=${encodeURIComponent(term)}` : '/produtos');
+  }
+
   return (
     <>
       <nav id="navbar" className={scrolled ? 'scrolled' : ''} role="navigation" aria-label="Navegação principal">
@@ -39,6 +48,19 @@ export default function Navbar({ onOpenWish }) {
             <img src="/ag12-sports-logo.jpeg" alt="AG12 Sports" className="nav-logo-mark" />
             <span className="nav-brand">AG12 SPORTS</span>
           </Link>
+
+          <form className="nav-search-bar" role="search" onSubmit={handleNavSearchSubmit}>
+            <iconify-icon className="nav-search-icon iconify" icon="mdi:magnify" aria-hidden="true" />
+            <input
+              type="search"
+              placeholder="Buscar por..."
+              aria-label="Buscar produto"
+              autoComplete="off"
+              spellCheck="false"
+              value={navSearch}
+              onChange={(e) => setNavSearch(e.target.value)}
+            />
+          </form>
 
           <div className="nav-links" role="menubar">
             {CATEGORIES.map((c) => (
