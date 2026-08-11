@@ -4,8 +4,9 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useWish } from '@/context/WishContext';
 import { useToast } from '@/context/ToastContext';
-import { apiRequest, productImageUrl } from '@/lib/api';
+import { apiRequest } from '@/lib/api';
 import { brl } from '@/lib/format';
+import ProductGallery from '@/components/ProductGallery';
 
 const WPP_NUMBER = '557598756510';
 const IG_URL     = 'https://www.instagram.com/ag12sports/';
@@ -78,6 +79,32 @@ export default function ProdutoPage() {
     );
   }
 
+  // Copia o link direto do produto (esta própria URL) para a área de
+  // transferência, para o usuário colar e enviar por WhatsApp, Instagram etc.
+  async function handleCopyLink() {
+    if (!product) return;
+    const url = `${window.location.origin}/produto/${product.id}`;
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        // Fallback para navegadores/contextos sem Clipboard API (ex: http).
+        const textarea = document.createElement('textarea');
+        textarea.value = url;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      showToast('Link do produto copiado!', 'success');
+    } catch (err) {
+      showToast('Não foi possível copiar o link.', 'error');
+    }
+  }
+
   if (loading) {
     return (
       <div style={{ paddingTop: 120, textAlign: 'center', color: 'var(--muted)' }}>
@@ -121,15 +148,8 @@ export default function ProdutoPage() {
 
       {/* Grid: imagem + dados */}
       <div className="modal-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'start' }}>
-        {/* Imagem */}
-        <div className="modal-img" style={{ borderRadius: 16, overflow: 'hidden', background: 'var(--surface)', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={productImageUrl(product.image)}
-            alt={product.name || 'Produto'}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
-        </div>
+        {/* Imagens — galeria com miniaturas, setas, teclado e lightbox */}
+        <ProductGallery images={product.images} productName={product.name} />
 
         {/* Dados */}
         <div className="modal-body">
@@ -171,6 +191,16 @@ export default function ProdutoPage() {
             <button onClick={handleWish} className="btn-primary" style={{ flex: 1, justifyContent: 'center' }}>
               <iconify-icon className="iconify" icon={wished ? 'mdi:heart' : 'mdi:heart-outline'} style={{ fontSize: 16 }} />
               {wished ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+            </button>
+            <button
+              onClick={handleCopyLink}
+              className="btn-secondary"
+              title="Copiar link do produto"
+              aria-label="Copiar link do produto"
+              style={{ justifyContent: 'center', display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}
+            >
+              <iconify-icon className="iconify" icon="mdi:link-variant" style={{ fontSize: 16 }} />
+              Copiar link
             </button>
           </div>
 
