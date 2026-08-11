@@ -52,3 +52,4 @@ coverage/
 # ── Docker (dados locais, se usar volume bind) ─────────────────────────────
 docker-data/
 mysql-data/
+docker-compose.override.yml
