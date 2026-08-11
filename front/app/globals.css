@@ -1664,7 +1664,7 @@ footer a:hover { color: var(--amber-lt); }
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--surface);
-  touch-action: pan-y;
+  touch-action: none;
 }
 .pg-track { position: relative; width: 100%; height: 100%; }
 .pg-slide {
@@ -1681,15 +1681,6 @@ footer a:hover { color: var(--amber-lt); }
   width: 100%; height: 100%;
   display: flex; align-items: center; justify-content: center;
   color: var(--muted); font-size: 14px;
-}
-
-/* Lupa de zoom (hover no desktop) */
-.pg-lens {
-  position: absolute;
-  inset: 0;
-  background-repeat: no-repeat;
-  pointer-events: none;
-  opacity: 1;
 }
 
 /* Setas — discretas, aparecem no hover (desktop); sempre visíveis (fallback) em telas sem hover */
