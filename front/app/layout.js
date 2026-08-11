@@ -7,6 +7,16 @@ export const metadata = {
   description: "Loja especializada em chuteiras Society, Futsal e Campo.",
 };
 
+// Bloqueia o pinch-zoom nativo do navegador na página inteira — o zoom das
+// fotos (galeria do produto e ofertas da home) é implementado manualmente
+// em JS e continua funcionando normalmente, independente disso.
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="pt-BR">

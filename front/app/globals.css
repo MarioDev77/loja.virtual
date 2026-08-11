@@ -43,7 +43,7 @@
   --font-body:    var(--font-inter), 'Inter', sans-serif;
 }
 
-html { scroll-behavior: smooth; font-size: 16px; }
+html { scroll-behavior: smooth; font-size: 16px; touch-action: pan-x pan-y; }
 
 body {
   font-family: var(--font-body);
@@ -52,6 +52,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
+  touch-action: pan-x pan-y;
 }
 
 img { max-width: 100%; display: block; }
@@ -406,6 +407,14 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 10px 30px rgba(0,0,0,0.35);
   border: 1px solid rgba(255,255,255,0.08);
   transition: transform 0.25s;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: zoom-in;
+  appearance: none;
+  -webkit-appearance: none;
 }
 .hero-offers-card:hover { transform: translateY(-4px); }
 
@@ -1807,6 +1816,25 @@ footer a:hover { color: var(--amber-lt); }
 .pg-lb-arrow.pg-arrow-left { left: 16px; }
 .pg-lb-arrow.pg-arrow-right { right: 16px; }
 .pg-lb-dots { bottom: 20px; }
+
+.pg-lb-cta {
+  position: absolute;
+  left: 50%;
+  bottom: 60px;
+  transform: translateX(-50%);
+  background: var(--amber-dk);
+  color: #fff;
+  padding: 10px 22px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  z-index: 3;
+  transition: filter 0.15s ease;
+}
+.pg-lb-cta:hover { filter: brightness(1.08); }
 
 @media (max-width: 640px) {
   .pg-lb-arrow { display: none; }

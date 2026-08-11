@@ -1,7 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
+import ImageLightbox from '@/components/ImageLightbox';
 
 const WPP_NUMBER = '557598756510';
 const AUTOPLAY_MS = 4200;
@@ -36,12 +38,22 @@ const OFFERS = [
  * com as artes promocionais da loja, passando sozinho e também podendo ser
  * arrastado com o dedo/mouse a qualquer momento — mesmo comportamento do
  * PromoBanner, só que como destaque principal da home.
+ *
+ * Clicar num card abre a arte em tela cheia (mesmo visualizador da galeria
+ * de produto, com zoom por roda/pinça), com um botão pra seguir pro link
+ * original (produto ou WhatsApp).
  */
 export default function HeroOffers() {
   const trackRef = useRef(null);
   const [active, setActive] = useState(0);
   const isPausedRef = useRef(false);
   const resumeTimeoutRef = useRef(null);
+
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   const goTo = useCallback((index) => {
     const el = trackRef.current;
@@ -96,6 +108,16 @@ export default function HeroOffers() {
     if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current);
   }, []);
 
+  const lightboxItems = OFFERS.map((o) => ({
+    src: o.src,
+    alt: o.alt,
+    cta: {
+      label: o.external ? 'Falar no WhatsApp' : 'Ver produtos',
+      href: o.href,
+      external: o.external,
+    },
+  }));
+
   return (
     <section id="heroOffers" aria-label="Ofertas em destaque">
       <div className="hero-offers-inner">
@@ -121,12 +143,12 @@ export default function HeroOffers() {
             onTouchStart={() => { isPausedRef.current = true; }}
           >
             {OFFERS.map((o, i) => (
-              <a
+              <button
                 key={i}
-                href={o.href}
-                target={o.external ? '_blank' : undefined}
-                rel={o.external ? 'noopener' : undefined}
+                type="button"
                 className="hero-offers-card"
+                aria-label={`Ver ${o.alt} em tela cheia`}
+                onClick={() => { pauseThenResume(); setLightboxIndex(i); setLightboxOpen(true); }}
               >
                 <Image
                   src={o.src}
@@ -136,7 +158,7 @@ export default function HeroOffers() {
                   style={{ objectFit: 'cover' }}
                   priority={i === 0}
                 />
-              </a>
+              </button>
             ))}
           </div>
 
@@ -180,6 +202,18 @@ export default function HeroOffers() {
           </a>
         </div>
       </div>
+
+      {mounted && lightboxOpen && createPortal(
+        <ImageLightbox
+          items={lightboxItems}
+          activeIndex={lightboxIndex}
+          onClose={() => setLightboxOpen(false)}
+          onNext={() => setLightboxIndex((i) => (i + 1) % OFFERS.length)}
+          onPrev={() => setLightboxIndex((i) => (i - 1 + OFFERS.length) % OFFERS.length)}
+          onSelect={setLightboxIndex}
+        />,
+        document.body,
+      )}
     </section>
   );
 }
