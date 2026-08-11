@@ -7,6 +7,7 @@ const { listProducts, getProductById, getFilterMeta } = require('../services/pro
 const { getReviewsByProduct, createReview } = require('../services/reviews.service');
 const { parsePositiveInt } = require('../utils/security');
 const { authJwt } = require('../middlewares/authJwt');
+const { getUserById } = require('../services/users.service');
 
 const router = express.Router();
 
@@ -112,10 +113,20 @@ router.post('/:id/reviews', authJwt, async (req, res, next) => {
       return res.status(400).json({ error: 'Dados inválidos', details: parsed.error.issues });
     }
 
+    // O JWT só carrega { sub, role } — nunca teve req.user.id/name (esses
+    // campos sempre vieram undefined aqui, o que quebrava o INSERT porque
+    // mysql2 rejeita bind params undefined). Busca o nome real no banco.
+    if (req.user.role === 'admin') {
+      return res.status(403).json({ error: 'Admin não pode avaliar produtos' });
+    }
+    const userId = Number(req.user.sub);
+    const reviewer = await getUserById(userId);
+    if (!reviewer) return res.status(404).json({ error: 'User not found' });
+
     const review = await createReview({
       productId,
-      userId:       req.user.id,
-      nameSnapshot: req.user.name || 'Cliente',
+      userId,
+      nameSnapshot: reviewer.name || 'Cliente',
       rating:       parsed.data.rating,
       comment:      parsed.data.comment || null,
     });

@@ -113,15 +113,17 @@ router.get('/dashboard', async (req, res, next) => {
   try {
     // Um único SELECT com agregações condicionais — evita 8 roundtrips
     // separados ao banco pra montar os cards.
-    // total/active/inactive contam TODOS os produtos (é o propósito desses
-    // 3 cards: mostrar quantos existem no banco vs quantos estão visíveis
-    // na loja). Os demais cards (promoção, destaque, estoque, marcas) e o
-    // gráfico por categoria descrevem o estado ATUAL da loja, então só
-    // contam produtos ativos — senão produtos excluídos (is_active=0)
-    // continuavam aparecendo nessas estatísticas como se estivessem à venda.
+    // "Excluir" no painel é soft delete (is_active = 0) — o produto some
+    // da loja mas a linha continua no banco (pra poder ser reativada em
+    // /admin/produtos). Pro admin, produto excluído não deve contar como
+    // "produto existente": total_products agora = active_products (só o
+    // que está de fato visível na loja). inactive_products continua
+    // mostrando os soft-deleted que ainda estão no banco (info útil pra
+    // saber que dá pra reativar ou apagar de vez com a etapa14).
+    // Os demais cards e o gráfico por categoria já contavam só ativos.
     const [[stats]] = await pool.query(`
       SELECT
-        COUNT(*)                                                    AS total_products,
+        SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END)               AS total_products,
         SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END)               AS active_products,
         SUM(CASE WHEN is_active = 0 THEN 1 ELSE 0 END)               AS inactive_products,
         SUM(CASE WHEN is_active = 1 AND old_price IS NOT NULL AND old_price > price THEN 1 ELSE 0 END) AS promo_products,
