@@ -113,37 +113,44 @@ router.get('/dashboard', async (req, res, next) => {
   try {
     // Um único SELECT com agregações condicionais — evita 8 roundtrips
     // separados ao banco pra montar os cards.
+    // total/active/inactive contam TODOS os produtos (é o propósito desses
+    // 3 cards: mostrar quantos existem no banco vs quantos estão visíveis
+    // na loja). Os demais cards (promoção, destaque, estoque, marcas) e o
+    // gráfico por categoria descrevem o estado ATUAL da loja, então só
+    // contam produtos ativos — senão produtos excluídos (is_active=0)
+    // continuavam aparecendo nessas estatísticas como se estivessem à venda.
     const [[stats]] = await pool.query(`
       SELECT
         COUNT(*)                                                    AS total_products,
         SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END)               AS active_products,
         SUM(CASE WHEN is_active = 0 THEN 1 ELSE 0 END)               AS inactive_products,
-        SUM(CASE WHEN old_price IS NOT NULL AND old_price > price THEN 1 ELSE 0 END) AS promo_products,
-        SUM(CASE WHEN is_featured = 1 THEN 1 ELSE 0 END)             AS featured_products,
-        SUM(CASE WHEN stock_qty = 0 THEN 1 ELSE 0 END)               AS out_of_stock_products,
-        SUM(CASE WHEN stock_qty > 0 AND stock_qty <= ? THEN 1 ELSE 0 END) AS low_stock_products
+        SUM(CASE WHEN is_active = 1 AND old_price IS NOT NULL AND old_price > price THEN 1 ELSE 0 END) AS promo_products,
+        SUM(CASE WHEN is_active = 1 AND is_featured = 1 THEN 1 ELSE 0 END)             AS featured_products,
+        SUM(CASE WHEN is_active = 1 AND stock_qty = 0 THEN 1 ELSE 0 END)               AS out_of_stock_products,
+        SUM(CASE WHEN is_active = 1 AND stock_qty > 0 AND stock_qty <= ? THEN 1 ELSE 0 END) AS low_stock_products
       FROM products
     `, [LOW_STOCK_THRESHOLD]);
 
     const [[{ total_categories }]] = await pool.query('SELECT COUNT(*) AS total_categories FROM categories');
     const [[{ total_brands }]] = await pool.query(
-      `SELECT COUNT(DISTINCT brand) AS total_brands FROM products WHERE brand <> ''`
+      `SELECT COUNT(DISTINCT brand) AS total_brands FROM products WHERE brand <> '' AND is_active = 1`
     );
 
-    // Gráfico: quantidade de produtos por categoria
+    // Gráfico: quantidade de produtos ATIVOS por categoria
     const [byCategoryRows] = await pool.query(`
       SELECT c.name AS category, COUNT(p.id) AS count
       FROM categories c
-      LEFT JOIN products p ON p.category_id = c.id
+      LEFT JOIN products p ON p.category_id = c.id AND p.is_active = 1
       GROUP BY c.id, c.name
       ORDER BY count DESC
     `);
 
-    // Últimos produtos cadastrados
+    // Últimos produtos cadastrados (só os ativos — produto excluído some daqui)
     const [recentRows] = await pool.query(`
       SELECT p.id, p.name, p.image_url, c.slug AS category, p.price, p.created_at
       FROM products p
       INNER JOIN categories c ON c.id = p.category_id
+      WHERE p.is_active = 1
       ORDER BY p.id DESC
       LIMIT 5
     `);
