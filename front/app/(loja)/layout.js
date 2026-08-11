@@ -26,7 +26,7 @@ export default function StoreLayout({ children }) {
             AG12 SPORTS
           </strong>
           <span style={{ margin: '0 8px', opacity: 0.3 }}>·</span>
-          Chuteiras Society, Futsal e Campo · Tênis e Blusas
+          Chuteiras Society, Futsal e Campo · Acessórios e Blusas
         </p>
         <p>© 2026 AG12 Sports. Todos os direitos reservados.</p>
       </footer>

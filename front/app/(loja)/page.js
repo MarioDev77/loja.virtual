@@ -45,7 +45,7 @@ export default function HomePage() {
             Seu jogo<br /><em>merece</em><br />o melhor
           </h1>
           <p className="hero-subtitle anim-fade-up-3">
-            Chuteiras Society, Futsal e Campo. Tênis e blusas para quem respira futebol.
+            Chuteiras Society, Futsal e Campo. Acessórios e blusas para quem respira futebol.
           </p>
           <div className="hero-actions anim-fade-up-4">
             <a href="#productsSection" className="btn-primary">

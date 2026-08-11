@@ -9,7 +9,7 @@ const CATEGORIES = [
   { slug: 'society', label: 'Society' },
   { slug: 'futsal', label: 'Futsal' },
   { slug: 'campo', label: 'Campo' },
-  { slug: 'tenis', label: 'Tênis' },
+  { slug: 'acessorios', label: 'Acessórios' },
   { slug: 'blusas', label: 'Blusas' },
 ];
 
