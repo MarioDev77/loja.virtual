@@ -1,15 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import ProductGrid from '@/components/ProductGrid';
+import HeroOffers from '@/components/HeroOffers';
 import PromoBanner from '@/components/PromoBanner';
 import CategoryCarousel from '@/components/CategoryCarousel';
 import SizeCarousel from '@/components/SizeCarousel';
 import { useProducts } from '@/lib/useProducts';
-
-const WPP_NUMBER = '557598756510';
 
 export default function HomePage() {
   const router = useRouter();
@@ -26,50 +24,8 @@ export default function HomePage() {
 
   return (
     <>
-      {/* ====== HERO ====== */}
-      <section id="heroSection" aria-label="Destaque principal">
-        <div className="hero-bg">
-          <Image
-            src="/assets/img/hero.webp"
-            alt="Estoque de chuteiras AG12 Sports"
-            fill
-            priority
-            sizes="100vw"
-            style={{ objectFit: 'cover', opacity: 0.45, transform: 'scale(1.04)' }}
-          />
-        </div>
-        <div className="hero-overlay" />
-
-        <div className="hero-content">
-          <p className="hero-eyebrow anim-fade-up-1">Loja especializada em futebol</p>
-          <h1 className="hero-title anim-fade-up-2">
-            Seu jogo<br /><em>merece</em><br />o melhor
-          </h1>
-          <p className="hero-subtitle anim-fade-up-3">
-            Chuteiras Society, Futsal e Campo. Acessórios e blusas para quem respira futebol.
-          </p>
-          <div className="hero-actions anim-fade-up-4">
-            <a href="#productsSection" className="btn-primary">
-              <iconify-icon className="iconify" icon="mdi:shoe-cleat" style={{ fontSize: 16 }} />
-              Ver catálogo
-            </a>
-            <a
-              href={`https://wa.me/${WPP_NUMBER}?text=${encodeURIComponent('Olá! Quero saber mais sobre as chuteiras.')}`}
-              target="_blank"
-              rel="noopener"
-              className="btn-ghost"
-            >
-              <iconify-icon className="iconify" icon="mdi:whatsapp" style={{ fontSize: 16 }} />
-              Falar no WhatsApp
-            </a>
-          </div>
-        </div>
-
-        <div className="hero-scroll" aria-hidden="true">
-          <span className="hero-scroll-label">Scroll</span>
-          <div className="hero-scroll-line" />
-        </div>
-      </section>
+      {/* ====== HERO (carrossel de ofertas) ====== */}
+      <HeroOffers />
 
       {/* ====== TRUST BAR ====== */}
       <div id="trustBar" aria-label="Diferenciais">
