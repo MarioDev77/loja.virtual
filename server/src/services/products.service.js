@@ -3,7 +3,7 @@
 const { pool } = require('../db/pool');
 
 // Whitelist de categorias válidas
-const VALID_CATS = new Set(['all', 'society', 'futsal', 'campo', 'tenis', 'blusas']);
+const VALID_CATS = new Set(['all', 'society', 'futsal', 'campo', 'tenis', 'acessorios', 'blusas', 'kits']);
 
 // Whitelist de colunas para ORDER BY — evita SQL injection via sort param.
 const SORT_MAP = {

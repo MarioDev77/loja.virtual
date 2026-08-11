@@ -11,7 +11,7 @@ const { authJwt } = require('../middlewares/authJwt');
 const router = express.Router();
 
 // ─── Parâmetros de query aceitos (whitelist) ──────────────────────────────────
-const VALID_CATEGORIES = new Set(['all', 'society', 'futsal', 'campo', 'tenis', 'blusas']);
+const VALID_CATEGORIES = new Set(['all', 'society', 'futsal', 'campo', 'tenis', 'acessorios', 'blusas', 'kits']);
 const VALID_SORT = new Set(['price_asc', 'price_desc', 'name_asc', 'newest']);
 
 const ProductQuerySchema = z.object({
