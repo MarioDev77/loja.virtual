@@ -1588,6 +1588,45 @@ footer a:hover { color: var(--amber-lt); }
   #loadMoreBtn { width: 100%; }
 }
 
+/* ─── Grid de produtos no celular: 2 colunas lado a lado, cards mais
+   compactos — inspirado em apps como Shopee/Mercado Livre, pra dar a cara
+   de loja mesmo na tela pequena, em vez de 1 produto ocupando a linha
+   inteira ───────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  #productsGrid, .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .product-card {
+    border-radius: var(--radius-md, 10px);
+  }
+  .product-card:hover { transform: none; }
+  .product-img-wrap { aspect-ratio: 1 / 1; }
+  .product-card .body { padding: 10px 10px 12px; }
+  .product-card .brand { font-size: 9px; margin-bottom: 3px; }
+  .product-card .name {
+    font-size: 13px;
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .product-card .price-now { font-size: 15px; }
+  .product-card .price-old { font-size: 10.5px; }
+  .product-badge { top: 8px; left: 8px; padding: 3px 7px; font-size: 10px; }
+  .wish-btn { top: 8px; right: 8px; width: 26px; height: 26px; font-size: 13px; }
+  .card-sizes { gap: 3px; margin: 1px 0 3px; }
+  .card-size-chip { font-size: 9.5px !important; padding: 1px 5px !important; }
+  .card-sizes-more { font-size: 9.5px; }
+}
+
+/* Telas bem pequenas (celulares estreitos): aperta mais um pouco o gap. */
+@media (max-width: 380px) {
+  #productsGrid, .products-grid { gap: 8px; }
+  .product-card .body { padding: 8px 8px 10px; }
+}
+
 /* ─── Painel de favoritos (wishlist) ────────────────────────────────────── */
 .wish-empty { text-align: center; padding: 40px 0; color: var(--muted); }
 .wish-empty p { font-size: 14px; margin-bottom: 6px; }
