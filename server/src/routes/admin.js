@@ -48,7 +48,7 @@ const ProductSchema = z.object({
   // Na criação, somente nome, preço e imagem são necessários. Defaults
   // preservam a compatibilidade com as colunas NOT NULL do banco.
   brand: z.string().max(80).optional().default(''),
-  category: z.enum(['society', 'futsal', 'campo', 'tenis', 'blusas']).optional().default('society'),
+  category: z.enum(['society', 'futsal', 'campo', 'tenis', 'acessorios', 'blusas', 'kits']).optional().default('society'),
   price: z.number().positive(),
   old_price: z.number().positive().nullable().optional(),
   // image_url: opcional quando há upload de arquivo
