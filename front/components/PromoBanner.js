@@ -1,4 +1,9 @@
+'use client';
+
+import { useCallback, useEffect, useRef, useState } from 'react';
+
 const WPP_NUMBER = '557598756510';
+const AUTOPLAY_MS = 4500;
 
 const SLIDES = [
   {
@@ -37,13 +42,71 @@ const SLIDES = [
 ];
 
 /**
- * Faixa promocional com rolagem horizontal (arraste/scroll pros lados),
- * no estilo do banner de destaque pedido como referência.
+ * Faixa promocional em carrossel: passa automaticamente sozinha (como o
+ * banner de referência) e também aceita arrastar o dedo/mouse pros lados
+ * a qualquer momento — a rolagem manual pausa o autoplay por alguns
+ * segundos e depois ele volta a andar sozinho.
  */
 export default function PromoBanner() {
+  const trackRef = useRef(null);
+  const [active, setActive] = useState(0);
+  const resumeTimeoutRef = useRef(null);
+  const isPausedRef = useRef(false);
+
+  const goTo = useCallback((index) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const slide = el.children[index];
+    if (!slide) return;
+    el.scrollTo({ left: slide.offsetLeft, behavior: 'smooth' });
+  }, []);
+
+  // Autoplay: avança um slide a cada intervalo, voltando ao início no fim.
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (isPausedRef.current) return;
+      setActive((prev) => {
+        const next = (prev + 1) % SLIDES.length;
+        goTo(next);
+        return next;
+      });
+    }, AUTOPLAY_MS);
+    return () => clearInterval(timer);
+  }, [goTo]);
+
+  // Mantém "active" em sincronia quando o usuário arrasta manualmente,
+  // e pausa o autoplay por alguns segundos após a interação.
+  function handleManualScroll() {
+    const el = trackRef.current;
+    if (!el) return;
+
+    isPausedRef.current = true;
+    if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current);
+    resumeTimeoutRef.current = setTimeout(() => { isPausedRef.current = false; }, 6000);
+
+    let closestIndex = 0;
+    let closestDist = Infinity;
+    Array.from(el.children).forEach((child, i) => {
+      const dist = Math.abs(child.offsetLeft - el.scrollLeft);
+      if (dist < closestDist) { closestDist = dist; closestIndex = i; }
+    });
+    setActive(closestIndex);
+  }
+
+  useEffect(() => () => {
+    if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current);
+  }, []);
+
   return (
     <section id="promoBanner" aria-label="Destaques e promoções">
-      <div className="promo-track">
+      <div
+        className="promo-track"
+        ref={trackRef}
+        onScroll={handleManualScroll}
+        onMouseEnter={() => { isPausedRef.current = true; }}
+        onMouseLeave={() => { isPausedRef.current = false; }}
+        onTouchStart={() => { isPausedRef.current = true; }}
+      >
         {SLIDES.map((s, i) => (
           <a
             key={i}
@@ -59,6 +122,26 @@ export default function PromoBanner() {
               <span className="promo-cta">{s.cta}</span>
             </div>
           </a>
+        ))}
+      </div>
+
+      <div className="promo-dots" role="tablist" aria-label="Selecionar destaque">
+        {SLIDES.map((_, i) => (
+          <button
+            key={i}
+            type="button"
+            role="tab"
+            aria-selected={active === i}
+            aria-label={`Ir para o destaque ${i + 1}`}
+            className={`promo-dot${active === i ? ' active' : ''}`}
+            onClick={() => {
+              isPausedRef.current = true;
+              if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current);
+              resumeTimeoutRef.current = setTimeout(() => { isPausedRef.current = false; }, 6000);
+              setActive(i);
+              goTo(i);
+            }}
+          />
         ))}
       </div>
     </section>

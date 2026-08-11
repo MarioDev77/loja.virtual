@@ -4,17 +4,21 @@ import { useRef } from 'react';
 import Link from 'next/link';
 
 const CATEGORY_ICONS = [
-  { slug: 'all',     label: 'Todos os Produtos', icon: 'mdi:view-grid-outline' },
-  { slug: 'society', label: 'Society',           icon: 'mdi:soccer-field' },
-  { slug: 'futsal',  label: 'Futsal',             icon: 'mdi:soccer' },
-  { slug: 'campo',   label: 'Campo',              icon: 'mdi:stadium-variant' },
-  { slug: 'tenis',   label: 'Tênis',               icon: 'mdi:shoe-sneaker' },
-  { slug: 'blusas',  label: 'Blusas',             icon: 'mdi:tshirt-crew-outline' },
+  { slug: 'all',        label: 'Todos os Produtos', icon: 'mdi:view-grid-outline' },
+  { slug: 'society',    label: 'Society',           icon: 'mdi:soccer-field' },
+  { slug: 'futsal',     label: 'Futsal',             icon: 'mdi:soccer' },
+  { slug: 'campo',      label: 'Campo',              icon: 'mdi:stadium-variant' },
+  { slug: 'acessorios', label: 'Acessórios',         icon: 'mdi:shoe-sneaker' },
+  { slug: 'blusas',     label: 'Blusas',             icon: 'mdi:tshirt-crew-outline' },
+  { slug: 'kits',       label: 'Kits de Treino',     icon: 'mdi:whistle-outline' },
 ];
 
 /**
  * Carrossel de categorias com ícones circulares e setas de navegação,
  * no estilo pedido como referência (avatares circulares + rolagem lateral).
+ * Fica centralizado quando os itens cabem na largura da tela; quando não
+ * cabem (telas menores), vira uma faixa com scroll horizontal (arraste
+ * com o dedo/mouse).
  */
 export default function CategoryCarousel() {
   const trackRef = useRef(null);

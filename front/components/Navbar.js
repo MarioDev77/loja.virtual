@@ -11,6 +11,7 @@ const CATEGORIES = [
   { slug: 'campo', label: 'Campo' },
   { slug: 'acessorios', label: 'Acessórios' },
   { slug: 'blusas', label: 'Blusas' },
+  { slug: 'kits', label: 'Kits de Treino' },
 ];
 
 /**

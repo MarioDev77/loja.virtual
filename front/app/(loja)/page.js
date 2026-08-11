@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import ProductGrid from '@/components/ProductGrid';
 import PromoBanner from '@/components/PromoBanner';
 import CategoryCarousel from '@/components/CategoryCarousel';
+import SizeCarousel from '@/components/SizeCarousel';
 import { useProducts } from '@/lib/useProducts';
 
 const WPP_NUMBER = '557598756510';
@@ -97,6 +98,9 @@ export default function HomePage() {
 
       {/* ====== CATEGORIAS (ícones circulares) ====== */}
       <CategoryCarousel />
+
+      {/* ====== NUMERAÇÃO (tamanhos 35 ao 45) ====== */}
+      <SizeCarousel />
 
       {/* ====== PRODUCTS ====== */}
       <section id="productsSection" aria-label="Catálogo de produtos">

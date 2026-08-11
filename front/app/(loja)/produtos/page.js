@@ -12,6 +12,7 @@ const CATEGORIES = [
   { slug: 'campo',   label: 'Campo' },
   { slug: 'acessorios', label: 'Acessórios' },
   { slug: 'blusas',  label: 'Blusas' },
+  { slug: 'kits',    label: 'Kits de Treino' },
 ];
 
 const SORTS = [
@@ -28,19 +29,23 @@ function ProdutosContent() {
   const [sort, setSort]         = useState('newest');
   const [search, setSearch]     = useState(searchParams.get('q') || '');
   const [inputVal, setInputVal] = useState(searchParams.get('q') || '');
+  const [size, setSize]         = useState(searchParams.get('size') || '');
 
   useEffect(() => {
-    const cat = searchParams.get('cat') || 'all';
-    const q   = searchParams.get('q')   || '';
+    const cat  = searchParams.get('cat')  || 'all';
+    const q    = searchParams.get('q')    || '';
+    const sz   = searchParams.get('size') || '';
     setCategory(cat);
     setSearch(q);
     setInputVal(q);
+    setSize(sz);
   }, [searchParams]);
 
   const { products, status, errorMessage, hasMore, isLoadingMore, loadMore, retry } = useProducts({
     category,
     sort,
     search,
+    size,
   });
 
   const categoryTitle = CATEGORIES.find((c) => c.slug === category)?.label || 'Todos os Produtos';
@@ -95,6 +100,21 @@ function ProdutosContent() {
             ))}
           </select>
         </div>
+
+        {size && (
+          <div className="active-filters" role="status">
+            <span className="active-filter-chip">
+              Tamanho {size}
+              <button
+                type="button"
+                aria-label="Remover filtro de tamanho"
+                onClick={() => setSize('')}
+              >
+                <iconify-icon className="iconify" icon="mdi:close" style={{ fontSize: 13 }} />
+              </button>
+            </span>
+          </div>
+        )}
 
         <ProductGrid
           status={status}

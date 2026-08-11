@@ -8,7 +8,11 @@ import { brl } from '@/lib/format';
 import { useToast } from '@/context/ToastContext';
 
 const ADMIN_PREFIX = '/manage';
-const CATEGORIES   = ['society', 'futsal', 'campo', 'acessorios', 'blusas'];
+const CATEGORIES   = ['society', 'futsal', 'campo', 'acessorios', 'blusas', 'kits'];
+const CATEGORY_LABELS = {
+  society: 'Society', futsal: 'Futsal', campo: 'Campo',
+  acessorios: 'Acessórios', blusas: 'Blusas', kits: 'Kits de Treino',
+};
 const MAX_IMAGES   = 5;
 
 const EMPTY_FORM = {
@@ -430,7 +434,7 @@ export default function AdminProdutosPage() {
                 <input type="text" placeholder="Marca (opcional)" className="field-input" value={formData.brand} onChange={(e) => handleFieldChange('brand', e.target.value)} />
 
                 <select className="sort-select field-input" value={formData.category} onChange={(e) => handleFieldChange('category', e.target.value)}>
-                  {CATEGORIES.map((c) => <option key={c} value={c} style={{ textTransform: 'capitalize' }}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
+                  {CATEGORIES.map((c) => <option key={c} value={c}>{CATEGORY_LABELS[c] || c}</option>)}
                 </select>
 
                 <input type="number" placeholder="Preço (ex: 299.90)" className="field-input" required step="0.01" min="0" value={formData.price} onChange={(e) => handleFieldChange('price', e.target.value)} />
@@ -547,7 +551,7 @@ export default function AdminProdutosPage() {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 16 }} role="group" aria-label="Filtros de produtos">
         <select className="sort-select" aria-label="Filtrar por categoria" value={filters.category} onChange={(e) => handleFilterChange('category', e.target.value)}>
           <option value="">Todas as categorias</option>
-          {CATEGORIES.map((c) => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
+          {CATEGORIES.map((c) => <option key={c} value={c}>{CATEGORY_LABELS[c] || c}</option>)}
         </select>
         <select className="sort-select" aria-label="Filtrar por marca" value={filters.brand} onChange={(e) => handleFilterChange('brand', e.target.value)}>
           <option value="">Todas as marcas</option>
